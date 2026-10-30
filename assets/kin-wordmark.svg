@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 205" role="img" aria-labelledby="title desc">
+<title id="title">KIN — Kinetic Intelligence Network</title>
+<desc id="desc">Original KIN brand wordmark with gold connected-path K symbol and black sans-serif letters.</desc>
+<rect x="0" y="0" width="740" height="205" rx="20" fill="#F7F5F0"/>
+<g fill="none" stroke="#BC945B" stroke-width="14" stroke-linecap="round" stroke-linejoin="round">
+<path d="M65 67V150"/><path d="M68 117 139 49"/><path d="M99 88 148 149"/><path d="M99 88 149 88"/>
+</g>
+<g fill="#BC945B"><circle cx="65" cy="52" r="10"/><circle cx="147" cy="43" r="10"/><circle cx="157" cy="88" r="10"/><circle cx="155" cy="157" r="10"/></g>
+<text x="195" y="121" font-family="Inter,Arial,Helvetica,sans-serif" font-size="105" font-weight="850" letter-spacing="-6" fill="#161616">KIN</text>
+<text x="200" y="158" font-family="Inter,Arial,Helvetica,sans-serif" font-size="19" font-weight="650" fill="#6F604C" letter-spacing="1.2">KINETIC INTELLIGENCE NETWORK</text>
+</svg>
