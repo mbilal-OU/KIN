@@ -320,6 +320,68 @@ def test_following_the_grizzlies_shows_the_official_event(app):
     assert "Volleyball" in " ".join(m.value for m in app.markdown)
 
 
+# ------------------------------------- the full fictional dataset loaded
+@pytest.mark.skipif(not __import__("kin_seed").dataset_available(),
+                    reason="the fictional dataset file is not present")
+class TestWithFullDataset:
+    """A whole semester is ~314 commitments. The UI must stay usable."""
+
+    @pytest.fixture()
+    def loaded(self, app):
+        import kin_seed
+        kin_seed.install(kin_store, kin_seed.load_file())
+        app.run()
+        return app
+
+    def test_every_screen_still_renders(self, loaded):
+        for screen in SCREENS:
+            _goto(loaded, screen)
+            assert not loaded.exception, f"{screen} raised: {loaded.exception}"
+
+    def test_today_limits_the_timeline_to_the_coming_week(self, loaded):
+        rendered = " ".join(m.value for m in loaded.markdown)
+        assert "Your next seven days" in rendered
+        # A term's worth of events must not all be drawn at once.
+        assert rendered.count('class="kin-tl ') <= 14
+
+    def test_today_reports_both_a_weekly_and_a_total_count(self, loaded):
+        rendered = " ".join(m.value for m in loaded.markdown)
+        assert "Next 7 days" in rendered
+        assert "Ahead in total" in rendered
+
+    def test_clashes_from_the_dataset_surface_on_today(self, loaded):
+        from kin_core import detect_internal_conflicts
+        expected = detect_internal_conflicts(kin_store.list_commitments())
+        assert expected, "dataset should contain deliberate clashes"
+        rendered = " ".join(m.value for m in loaded.markdown)
+        assert "Clashes in your timetable" in rendered
+
+    def test_planner_paginates_instead_of_rendering_every_row(self, loaded):
+        _goto(loaded, "Planner")
+        assert not loaded.exception
+        captions = " ".join(c.value for c in loaded.caption)
+        assert "commitment(s) in this workspace" in captions
+        # At most PAGE rows become editable widgets.
+        assert len(loaded.selectbox) < 40
+
+    def test_planner_search_narrows_the_list(self, loaded):
+        _goto(loaded, "Planner")
+        before = " ".join(c.value for c in loaded.caption)
+        loaded.text_input[0].set_value("Midterm").run()
+        assert not loaded.exception
+        after = " ".join(c.value for c in loaded.caption)
+        assert before != after
+
+    def test_profile_name_from_the_dataset_reaches_the_greeting(self, loaded):
+        expected = kin_store.get_preferences().get("preferred_name")
+        assert expected
+        assert any(expected in s.value for s in loaded.subheader)
+
+    def test_dataset_workspaces_are_selectable(self, loaded):
+        options = list(loaded.sidebar.selectbox[0].options)
+        assert len(options) >= 5
+
+
 # -------------------------------------------------------- global footer
 def test_footer_disclaims_emergency_use_on_every_screen(app):
     for screen in SCREENS:

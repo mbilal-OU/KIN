@@ -12,6 +12,7 @@ from datetime import datetime, time, timedelta
 import streamlit as st
 from dotenv import load_dotenv
 
+import kin_seed
 import kin_store as store
 import kin_theme as theme
 from kin_ai import (
@@ -245,9 +246,11 @@ if screen == "Today":
         f'{DEMO_TODAY.strftime("%A, %d %B %Y").replace(" 0", " ")} · '
         f'{workspace["name"]} workspace</div></div>', unsafe_allow_html=True)
     horizon = DEMO_TODAY
-    upcoming = [c for c in commitments
-                if c.get("status") not in ("completed", "canceled")
-                and parse_dt(c["start"]) >= horizon - timedelta(hours=12)]
+    ahead = [c for c in commitments
+             if c.get("status") not in ("completed", "canceled")
+             and parse_dt(c["start"]) >= horizon - timedelta(hours=12)]
+    # The timeline covers the next week; a whole term at once is not actionable.
+    upcoming = [c for c in ahead if parse_dt(c["start"]) < horizon + timedelta(days=7)]
     conflicts = detect_internal_conflicts(commitments)
     weather = st.session_state.get("weather")
     impacts: list[dict] = []
@@ -259,7 +262,8 @@ if screen == "Today":
 
     free = find_free_windows(commitments, horizon)
     st.markdown(theme.stat_tiles([
-        ("Upcoming", len(upcoming), "accent", "\U0001F4CC"),
+        ("Next 7 days", len(upcoming), "accent", "\U0001F4CC"),
+        ("Ahead in total", len(ahead), "", "\U0001F5FA️"),
         ("Timetable clashes", len(conflicts), "danger" if conflicts else "ok", "⚡"),
         ("Weather impacts", len(impacts), "danger" if impacts else "ok", "\U0001F326️"),
         ("Open windows today", len(free), "", "\U0001F340"),
@@ -276,8 +280,8 @@ if screen == "Today":
     left, right = st.columns([3, 2], gap="large")
 
     with left:
-        st.markdown(theme.section("\U0001F5D3️", "Your timeline",
-                                  f"{len(upcoming)} ahead"), unsafe_allow_html=True)
+        st.markdown(theme.section("\U0001F5D3️", "Your next seven days",
+                                  f"{len(upcoming)} commitment(s)"), unsafe_allow_html=True)
         if not upcoming:
             st.markdown(theme.empty(
                 "\U0001F334", "Nothing scheduled ahead",
@@ -394,13 +398,45 @@ elif screen == "Planner":
     # ------------------------------------------------------------- list
     with tab_list:
         if not commitments:
-            st.markdown(theme.note("This workspace has no commitments yet."),
+            st.markdown(theme.empty("\U0001F4ED", "No commitments in this workspace",
+                                    "Add one under 'Add manually', or load the fictional "
+                                    "dataset from Settings & Trust."),
                         unsafe_allow_html=True)
+        PAGE = 25
+        f1, f2 = st.columns([3, 2])
+        search = f1.text_input("Search titles", placeholder="e.g. BIO 5100, exam, shift")
+        period = f2.selectbox("Period", ["Upcoming", "This week", "Past", "Everything"])
         type_filter = st.multiselect("Filter by type", list(EVENT_TYPES),
                                      format_func=lambda k: EVENT_TYPES[k]["label"])
-        shown = [c for c in commitments if not type_filter
-                 or c.get("event_type") in type_filter]
-        for c in shown:
+
+        def _in_period(commitment: dict) -> bool:
+            try:
+                start = parse_dt(commitment["start"])
+            except (ValueError, KeyError):
+                return True
+            if period == "Upcoming":
+                return start >= DEMO_TODAY
+            if period == "This week":
+                return DEMO_TODAY - timedelta(days=1) <= start < DEMO_TODAY + timedelta(days=7)
+            if period == "Past":
+                return start < DEMO_TODAY
+            return True
+
+        needle = search.strip().lower()
+        shown = [c for c in commitments
+                 if (not type_filter or c.get("event_type") in type_filter)
+                 and (not needle or needle in c.get("title", "").lower())
+                 and _in_period(c)]
+        if period == "Past":
+            shown = list(reversed(shown))
+
+        st.caption(f"{len(shown)} of {len(commitments)} commitment(s) in this workspace"
+                   + (f" · showing the first {PAGE}" if len(shown) > PAGE else ""))
+        if shown and len(shown) > PAGE:
+            st.markdown(theme.note(
+                "Narrow the search or period to reach the rest. KIN paginates rather than "
+                "rendering hundreds of editable rows at once."), unsafe_allow_html=True)
+        for c in shown[:PAGE]:
             meta = event_type_meta(c.get("event_type"))
             with st.container(border=True):
                 cols = st.columns([5, 2, 1.2])
@@ -609,9 +645,14 @@ elif screen == "Planner":
         if not commitments:
             st.info("Add a commitment first.")
         else:
-            labels = {c["id"]: f"{c['title']} — {span(c['start'], c['end'])}" for c in commitments}
+            movable = [c for c in commitments
+                       if c.get("status") not in ("completed", "canceled")
+                       and parse_dt(c["start"]) >= DEMO_TODAY] or commitments
+            labels = {c["id"]: f"{c['title']} — {span(c['start'], c['end'])}"
+                      for c in movable[:60]}
             target = st.selectbox("Move which commitment?", list(labels),
-                                  format_func=lambda k: labels[k])
+                                  format_func=lambda k: labels[k],
+                                  help="Upcoming commitments only; past events cannot be moved.")
             shift = st.slider("Shift by (minutes)", -240, 240, 60, 15)
             if st.button("Simulate", type="primary"):
                 st.session_state["sim_result"] = simulate_change(
@@ -1183,6 +1224,44 @@ else:
                            file_name="kin-local-data.json", mime="application/json")
         with st.expander("Inspect the stored record"):
             st.json(snapshot)
+
+        st.divider()
+        st.markdown(theme.section("\U0001F9EA", "Fictional demonstration dataset"),
+                    unsafe_allow_html=True)
+        if not kin_seed.dataset_available():
+            st.markdown(theme.note(
+                "No dataset file found at <code>data/KIN_Fictional_Student_Life_Dataset.json</code>."),
+                unsafe_allow_html=True)
+        else:
+            st.markdown(theme.note(
+                "Loads a complete fictional semester — a full timetable from August to "
+                "December 2026, with courses, lab work, shifts, family commitments and "
+                "deliberate scheduling clashes. Every record is invented. "
+                "<strong>This replaces your current local data.</strong>"),
+                unsafe_allow_html=True)
+            if st.button("Load the fictional student life dataset", type="primary"):
+                try:
+                    parsed = kin_seed.load_file()
+                    report = kin_seed.install(store, parsed)
+                    st.cache_data.clear()
+                    for key in ("pending_action", "weather", "extracted", "briefing",
+                                "sim_result", "ics_preview"):
+                        st.session_state[key] = None
+                    st.session_state["qa_history"] = []
+                    st.session_state["workspace_id"] = None
+                    st.success(
+                        f"Loaded {report['commitments']} commitments across "
+                        f"{report['workspaces']} workspaces, "
+                        f"{report['first']} to {report['last']}.")
+                    if report["problems"]:
+                        with st.expander(f"{len(report['problems'])} row(s) needed attention"):
+                            for problem in report["problems"]:
+                                st.caption(problem)
+                    st.rerun()
+                except kin_seed.SeedError as exc:
+                    st.error(f"Could not load the dataset: {exc}")
+                    st.caption("Your existing data was left unchanged.")
+
         st.divider()
         st.markdown("**Erase local data.** This deletes every commitment, preference, "
                     "workspace, action and notification stored on this machine.")

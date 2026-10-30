@@ -1,0 +1,994 @@
+{
+  "profile": {
+    "preferred_name": "Mira",
+    "assistant_alias": "Grizz",
+    "commute_area": "Troy (approx.)",
+    "transport_mode": "Car",
+    "planning_buffer": 45,
+    "opportunity_buffer": 30,
+    "favorite_teams": [
+      "Oakland Golden Grizzlies",
+      "Detroit Red Wings",
+      "Detroit Lions"
+    ],
+    "quiet_hours_start": 23,
+    "quiet_hours_end": 7,
+    "backstory": "Mira Voss is a completely fictional graduate student at Oakland University studying molecular and computational biology. She takes four fictional graduate courses, works in a fictional molecular systems lab, and has part-time bookstore shifts. She commutes from the Troy area and helps with family pickups while enjoying gaming and Oakland sports. October is overloaded with exams, research deadlines, work, and family obligations."
+  },
+  "workspaces": [
+    {
+      "name": "OU Graduate School",
+      "kind": "University",
+      "assistant_alias": "Grizz"
+    },
+    {
+      "name": "Molecular Systems Lab",
+      "kind": "Research",
+      "assistant_alias": null
+    },
+    {
+      "name": "Maple Leaf Books",
+      "kind": "Employment",
+      "assistant_alias": null
+    },
+    {
+      "name": "Voss Family",
+      "kind": "Family",
+      "assistant_alias": null
+    },
+    {
+      "name": "Friday Game Night",
+      "kind": "Gaming",
+      "assistant_alias": null
+    },
+    {
+      "name": "Sports and Free Time",
+      "kind": "Sports",
+      "assistant_alias": null
+    }
+  ],
+  "recurring": [
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Molecular Systems Lecture",
+      "event_type": "class",
+      "requires_travel": true,
+      "days": [
+        "MO",
+        "WE",
+        "FR"
+      ],
+      "start_time": "09:00",
+      "end_time": "10:07",
+      "from_date": "2026-09-02",
+      "to_date": "2026-12-04",
+      "notes": "Fictional course; gene regulation and cell signaling."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Computational Genomics",
+      "event_type": "class",
+      "requires_travel": true,
+      "days": [
+        "TU",
+        "TH"
+      ],
+      "start_time": "10:00",
+      "end_time": "11:47",
+      "from_date": "2026-09-03",
+      "to_date": "2026-12-03",
+      "notes": "Fictional course; sequencing analysis with Python."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Applied Biostatistics",
+      "event_type": "class",
+      "requires_travel": true,
+      "days": [
+        "MO",
+        "WE"
+      ],
+      "start_time": "13:00",
+      "end_time": "14:17",
+      "from_date": "2026-09-02",
+      "to_date": "2026-12-02",
+      "notes": "Fictional course; regression and experimental design."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5900 Graduate Research Seminar",
+      "event_type": "class",
+      "requires_travel": true,
+      "days": [
+        "TH"
+      ],
+      "start_time": "15:00",
+      "end_time": "16:17",
+      "from_date": "2026-09-03",
+      "to_date": "2026-12-03",
+      "notes": "Fictional course; literature discussions and presentations."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Cell Culture and Sample Processing",
+      "event_type": "lab",
+      "requires_travel": true,
+      "days": [
+        "TU",
+        "TH"
+      ],
+      "start_time": "12:15",
+      "end_time": "14:30",
+      "from_date": "2026-09-03",
+      "to_date": "2026-12-03",
+      "notes": "Fictional lab; maintain sample and experiment logs."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Weekly Research Group Meeting",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "days": [
+        "FR"
+      ],
+      "start_time": "11:00",
+      "end_time": "12:00",
+      "from_date": "2026-09-04",
+      "to_date": "2026-12-04",
+      "notes": "Review experiment results and poster milestones."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Bookstore Evening Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "days": [
+        "TU",
+        "TH"
+      ],
+      "start_time": "17:30",
+      "end_time": "21:00",
+      "from_date": "2026-09-03",
+      "to_date": "2026-12-10",
+      "notes": "Fictional bookstore; checkout and inventory."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Saturday Bookstore Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "days": [
+        "SA"
+      ],
+      "start_time": "10:00",
+      "end_time": "14:00",
+      "from_date": "2026-09-05",
+      "to_date": "2026-12-05",
+      "notes": "Weekend register coverage."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Family Pickup",
+      "event_type": "family",
+      "requires_travel": true,
+      "days": [
+        "WE"
+      ],
+      "start_time": "16:15",
+      "end_time": "17:00",
+      "from_date": "2026-09-02",
+      "to_date": "2026-12-09",
+      "notes": "Pickup from an agreed public meeting location in Troy area."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "Sunday Assignment and Exam Prep",
+      "event_type": "study",
+      "requires_travel": false,
+      "days": [
+        "SU"
+      ],
+      "start_time": "15:00",
+      "end_time": "17:30",
+      "from_date": "2026-09-06",
+      "to_date": "2026-12-06",
+      "notes": "Review upcoming assessments."
+    },
+    {
+      "workspace": "Friday Game Night",
+      "title": "Co-op Game Night",
+      "event_type": "gaming",
+      "requires_travel": false,
+      "days": [
+        "FR"
+      ],
+      "start_time": "20:00",
+      "end_time": "22:30",
+      "from_date": "2026-09-04",
+      "to_date": "2026-12-04",
+      "notes": "Online games with friends."
+    }
+  ],
+  "one_off": [
+    {
+      "workspace": "OU Graduate School",
+      "title": "Fall Semester Planning and Course Checklist",
+      "event_type": "personal",
+      "requires_travel": false,
+      "start": "2026-08-10T18:00",
+      "end": "2026-08-10T19:00",
+      "status": "completed",
+      "notes": "Reviewed fictional course plans."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "August Family Grocery Run",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-08-15T11:00",
+      "end": "2026-08-15T12:30",
+      "status": "completed",
+      "notes": "Purchased household supplies."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Research Workspace Orientation",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-08-19T10:00",
+      "end": "2026-08-19T11:30",
+      "status": "completed",
+      "notes": "Reviewed sample labeling procedures."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Fall Availability Meeting",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-08-22T14:00",
+      "end": "2026-08-22T14:45",
+      "status": "completed",
+      "notes": "Confirmed fall shift preferences."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "Buy Lab Notebook and Supplies",
+      "event_type": "personal",
+      "requires_travel": false,
+      "start": "2026-08-26T15:30",
+      "end": "2026-08-26T16:30",
+      "status": "completed",
+      "notes": "Purchased notebook and index tabs."
+    },
+    {
+      "workspace": "Sports and Free Time",
+      "title": "Late-August Basketball Skills Session",
+      "event_type": "recreation",
+      "requires_travel": true,
+      "start": "2026-08-29T17:00",
+      "end": "2026-08-29T18:30",
+      "status": "completed",
+      "notes": "Fictional community pickup basketball."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "First Week Course Materials Review",
+      "event_type": "study",
+      "requires_travel": false,
+      "start": "2026-09-01T19:00",
+      "end": "2026-09-01T20:15",
+      "status": "completed",
+      "notes": "Entered fictional syllabi deadlines."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Baseline Sequencing Dataset Review",
+      "event_type": "lab",
+      "requires_travel": true,
+      "start": "2026-09-08T14:45",
+      "end": "2026-09-08T16:15",
+      "status": "completed",
+      "notes": "Checked sample metadata consistency."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Quiz 1",
+      "event_type": "quiz",
+      "requires_travel": true,
+      "start": "2026-09-11T09:00",
+      "end": "2026-09-11T09:25",
+      "status": "completed",
+      "notes": "Transcription and signaling terms."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Problem Set 1 Due",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-09-14T20:00",
+      "end": "2026-09-14T20:15",
+      "status": "completed",
+      "notes": "Submitted regression notebook."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Family Appointment Ride",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-09-16T15:30",
+      "end": "2026-09-16T17:15",
+      "status": "completed",
+      "notes": "Transportation for a relative."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Genomics Notebook Submission",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-09-18T21:00",
+      "end": "2026-09-18T21:15",
+      "status": "completed",
+      "notes": "Submitted read-quality analysis."
+    },
+    {
+      "workspace": "Sports and Free Time",
+      "title": "Oakland Golden Grizzlies Exhibition Game",
+      "event_type": "recreation",
+      "requires_travel": true,
+      "start": "2026-09-19T18:00",
+      "end": "2026-09-19T20:15",
+      "status": "completed",
+      "notes": "Fictional demo game, not verified official fixture."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Research Data Cleaning Sprint",
+      "event_type": "lab",
+      "requires_travel": true,
+      "start": "2026-09-23T14:30",
+      "end": "2026-09-23T17:00",
+      "status": "completed",
+      "notes": "Standardized sample labels."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5900 Paper Discussion Lead",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-09-24T15:00",
+      "end": "2026-09-24T16:17",
+      "status": "completed",
+      "notes": "Led discussion of fictional research paper."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Extra Sunday Inventory Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-09-27T11:00",
+      "end": "2026-09-27T15:00",
+      "status": "completed",
+      "notes": "Counted inventory."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Midterm 1",
+      "event_type": "exam",
+      "requires_travel": true,
+      "start": "2026-09-30T09:00",
+      "end": "2026-09-30T10:15",
+      "status": "completed",
+      "notes": "Fictional molecular signaling midterm."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Midterm Review",
+      "event_type": "study",
+      "requires_travel": false,
+      "start": "2026-10-02T18:00",
+      "end": "2026-10-02T20:00",
+      "status": "completed",
+      "notes": "Worked regression diagnostics."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Family Birthday Dinner",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-10-03T17:30",
+      "end": "2026-10-03T20:00",
+      "status": "completed",
+      "notes": "Celebrated fictional relative."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Midterm Exam",
+      "event_type": "exam",
+      "requires_travel": true,
+      "start": "2026-10-05T13:00",
+      "end": "2026-10-05T14:30",
+      "status": "completed",
+      "notes": "Fictional exam on regression."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "October Research Planning Meeting",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-10-07T14:30",
+      "end": "2026-10-07T15:30",
+      "status": "completed",
+      "notes": "Set sample-processing milestones."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Quiz 2",
+      "event_type": "quiz",
+      "requires_travel": true,
+      "start": "2026-10-08T10:00",
+      "end": "2026-10-08T10:35",
+      "status": "completed",
+      "notes": "Variant calling and quality filtering."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Canceled Extra Closing Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-10-09T18:00",
+      "end": "2026-10-09T21:30",
+      "status": "canceled",
+      "notes": "Canceled by fictional manager."
+    },
+    {
+      "workspace": "Sports and Free Time",
+      "title": "Golden Grizzlies Fall Showcase Game",
+      "event_type": "recreation",
+      "requires_travel": true,
+      "start": "2026-10-10T16:00",
+      "end": "2026-10-10T18:15",
+      "status": "completed",
+      "notes": "Fictional demo game, not verified fixture."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Signaling Assignment Due",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-10-12T21:00",
+      "end": "2026-10-12T21:15",
+      "status": "completed",
+      "notes": "Submitted pathway diagrams."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Research Seminar: Single-Cell Analysis",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-10-14T15:00",
+      "end": "2026-10-14T16:30",
+      "status": "completed",
+      "notes": "Fictional research seminar."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Family Pickup Rescheduled",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-10-16T16:00",
+      "end": "2026-10-16T16:45",
+      "status": "completed",
+      "notes": "Covered extra Friday pickup."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Midterm Project Submission",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-10-19T22:00",
+      "end": "2026-10-19T22:15",
+      "status": "completed",
+      "notes": "Submitted reproducible analysis."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Midterm 2",
+      "event_type": "exam",
+      "requires_travel": true,
+      "start": "2026-10-21T09:00",
+      "end": "2026-10-21T10:30",
+      "status": "completed",
+      "notes": "Fictional exam on protein networks."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Poster Results Review",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-10-21T10:00",
+      "end": "2026-10-21T11:00",
+      "status": "completed",
+      "notes": "DELIBERATE CONFLICT 1: overlaps BIO 5100 Midterm 2."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5900 Seminar Reflection Due",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-10-22T21:00",
+      "end": "2026-10-22T21:15",
+      "status": "completed",
+      "notes": "Submitted two-page critique."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Emergency Saturday Shift Extension",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-10-24T13:00",
+      "end": "2026-10-24T17:00",
+      "status": "completed",
+      "notes": "Extended normal Saturday shift."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Pipeline Debugging Session",
+      "event_type": "study",
+      "requires_travel": false,
+      "start": "2026-10-25T18:00",
+      "end": "2026-10-25T21:00",
+      "status": "completed",
+      "notes": "Fixed fictional sample-index mismatch."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "October Sample Processing Deadline",
+      "event_type": "lab",
+      "requires_travel": true,
+      "start": "2026-10-26T14:30",
+      "end": "2026-10-26T17:30",
+      "status": "completed",
+      "notes": "Completed sample quality checks."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Project Proposal Due",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-10-27T20:30",
+      "end": "2026-10-27T20:45",
+      "status": "completed",
+      "notes": "Submitted experimental design."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Urgent Family Pickup",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-10-28T13:45",
+      "end": "2026-10-28T14:45",
+      "status": "completed",
+      "notes": "DELIBERATE CONFLICT 2: overlaps STA 5600 class."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Research Poster Draft Review",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-10-29T14:00",
+      "end": "2026-10-29T15:15",
+      "status": "completed",
+      "notes": "Revised results figures."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Quiz 3",
+      "event_type": "quiz",
+      "requires_travel": true,
+      "start": "2026-10-29T10:00",
+      "end": "2026-10-29T10:30",
+      "status": "completed",
+      "notes": "Differential expression assessment."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Friday Research Check-In",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-10-30T11:00",
+      "end": "2026-10-30T12:00",
+      "status": "planned",
+      "notes": "Review November sample plan."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Midterm Corrections Due",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-10-30T17:00",
+      "end": "2026-10-30T17:15",
+      "status": "planned",
+      "notes": "Upload corrected pathway diagrams."
+    },
+    {
+      "workspace": "Sports and Free Time",
+      "title": "Oakland Golden Grizzlies Friday Game",
+      "event_type": "recreation",
+      "requires_travel": true,
+      "start": "2026-10-30T18:00",
+      "end": "2026-10-30T20:15",
+      "status": "planned",
+      "notes": "Fictional demonstration game, not official fixture."
+    },
+    {
+      "workspace": "Friday Game Night",
+      "title": "Extended Halloween Co-op Session",
+      "event_type": "gaming",
+      "requires_travel": false,
+      "start": "2026-10-30T19:30",
+      "end": "2026-10-30T22:30",
+      "status": "planned",
+      "notes": "DELIBERATE CONFLICT 3: overlaps fictional sports event and weekly gaming."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Halloween Weekend Extra Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-10-31T13:00",
+      "end": "2026-10-31T17:00",
+      "status": "planned",
+      "notes": "Overlaps normal Saturday shift."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Halloween Family Dinner",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-10-31T17:30",
+      "end": "2026-10-31T20:00",
+      "status": "planned",
+      "notes": "Prepare dinner after shift."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "November Coursework Planning",
+      "event_type": "study",
+      "requires_travel": false,
+      "start": "2026-11-01T18:00",
+      "end": "2026-11-01T19:30",
+      "status": "planned",
+      "notes": "Update calendar after daylight-saving change."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Regression Project Checkpoint",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-11-03T21:00",
+      "end": "2026-11-03T21:15",
+      "status": "planned",
+      "notes": "Submit model diagnostics."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "November Research Data Audit",
+      "event_type": "lab",
+      "requires_travel": true,
+      "start": "2026-11-05T14:30",
+      "end": "2026-11-05T16:30",
+      "status": "planned",
+      "notes": "Reconcile sample identifiers."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Shift Swap With Coworker",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-11-06T17:00",
+      "end": "2026-11-06T20:30",
+      "status": "planned",
+      "notes": "Friday coverage in exchange for reduced Saturday hours."
+    },
+    {
+      "workspace": "Sports and Free Time",
+      "title": "Golden Grizzlies November Home Game",
+      "event_type": "recreation",
+      "requires_travel": true,
+      "start": "2026-11-07T18:00",
+      "end": "2026-11-07T20:15",
+      "status": "uncertain",
+      "notes": "Fictional placeholder; official fixture unverified."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Quiz 4",
+      "event_type": "quiz",
+      "requires_travel": true,
+      "start": "2026-11-09T09:00",
+      "end": "2026-11-09T09:30",
+      "status": "planned",
+      "notes": "Signaling network feedback."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Regional Computational Biology Seminar",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-11-11T15:00",
+      "end": "2026-11-11T17:00",
+      "status": "planned",
+      "notes": "Fictional seminar on genomics workflows."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Family Appointment Transportation",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-11-12T14:00",
+      "end": "2026-11-12T15:30",
+      "status": "planned",
+      "notes": "Provide transportation; arrange lab coverage."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Final Project Draft",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-11-16T21:00",
+      "end": "2026-11-16T21:15",
+      "status": "planned",
+      "notes": "Submit genomics analysis report."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Research Presentation Practice",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-11-18T14:30",
+      "end": "2026-11-18T16:00",
+      "status": "planned",
+      "notes": "Practice twelve-minute presentation."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "Graduate Research Presentation",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-11-20T13:00",
+      "end": "2026-11-20T14:00",
+      "status": "planned",
+      "notes": "Present fictional cell-response results."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Holiday Inventory Preparation Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-11-22T11:00",
+      "end": "2026-11-22T15:00",
+      "status": "planned",
+      "notes": "Prepare displays and count inventory."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Thanksgiving Grocery Shopping",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-11-25T16:00",
+      "end": "2026-11-25T18:00",
+      "status": "planned",
+      "notes": "Buy ingredients for gathering."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Thanksgiving Family Gathering",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-11-26T13:00",
+      "end": "2026-11-26T19:00",
+      "status": "planned",
+      "notes": "Cook and spend time together."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5900 Final Seminar Reflection",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-11-30T20:00",
+      "end": "2026-11-30T20:15",
+      "status": "planned",
+      "notes": "Connect seminar themes to research."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "December Poster Printing Review",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-12-02T14:30",
+      "end": "2026-12-02T15:30",
+      "status": "planned",
+      "notes": "Approve figures and captions."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Final Analysis Submission",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-12-04T20:00",
+      "end": "2026-12-04T20:15",
+      "status": "planned",
+      "notes": "Submit code and final report."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "Finals Week Study Plan",
+      "event_type": "study",
+      "requires_travel": false,
+      "start": "2026-12-06T18:00",
+      "end": "2026-12-06T20:30",
+      "status": "planned",
+      "notes": "Prepare notes and submission checklist."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5100 Final Examination",
+      "event_type": "exam",
+      "requires_travel": true,
+      "start": "2026-12-07T09:00",
+      "end": "2026-12-07T11:00",
+      "status": "planned",
+      "notes": "Fictional molecular systems final."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Final Project Submission",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-12-07T20:00",
+      "end": "2026-12-07T20:15",
+      "status": "planned",
+      "notes": "Submit reproducible statistics report."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5250 Final Examination",
+      "event_type": "exam",
+      "requires_travel": true,
+      "start": "2026-12-08T10:00",
+      "end": "2026-12-08T12:00",
+      "status": "planned",
+      "notes": "Fictional computational genomics final."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "December Research Poster Showcase",
+      "event_type": "meeting",
+      "requires_travel": true,
+      "start": "2026-12-09T13:00",
+      "end": "2026-12-09T16:00",
+      "status": "planned",
+      "notes": "Fictional departmental showcase."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "STA 5600 Final Examination",
+      "event_type": "exam",
+      "requires_travel": true,
+      "start": "2026-12-10T09:00",
+      "end": "2026-12-10T11:00",
+      "status": "planned",
+      "notes": "Fictional regression final."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "BIO 5900 Final Presentation Reflection",
+      "event_type": "assignment",
+      "requires_travel": false,
+      "start": "2026-12-10T19:00",
+      "end": "2026-12-10T19:15",
+      "status": "planned",
+      "notes": "Submit presentation self-assessment."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "Fall Research Archive and Handoff",
+      "event_type": "lab",
+      "requires_travel": true,
+      "start": "2026-12-11T10:30",
+      "end": "2026-12-11T13:00",
+      "status": "planned",
+      "notes": "Archive experiments and January handoff."
+    },
+    {
+      "workspace": "OU Graduate School",
+      "title": "Fall Semester Final Checklist",
+      "event_type": "personal",
+      "requires_travel": false,
+      "start": "2026-12-11T17:00",
+      "end": "2026-12-11T18:00",
+      "status": "planned",
+      "notes": "Confirm submissions and archive tasks."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "December Holiday Travel Planning",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-12-13T16:00",
+      "end": "2026-12-13T17:30",
+      "status": "planned",
+      "notes": "Compare travel dates and car availability."
+    },
+    {
+      "workspace": "Maple Leaf Books",
+      "title": "Holiday Season Extra Shift",
+      "event_type": "work",
+      "requires_travel": true,
+      "start": "2026-12-15T12:00",
+      "end": "2026-12-15T17:00",
+      "status": "planned",
+      "notes": "Holiday inventory and customer coverage."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Holiday Gift Shopping",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-12-18T14:00",
+      "end": "2026-12-18T17:00",
+      "status": "planned",
+      "notes": "Purchase gifts within budget."
+    },
+    {
+      "workspace": "Sports and Free Time",
+      "title": "December Golden Grizzlies Game",
+      "event_type": "recreation",
+      "requires_travel": true,
+      "start": "2026-12-19T18:00",
+      "end": "2026-12-19T20:15",
+      "status": "uncertain",
+      "notes": "Fictional possible game; schedule unverified."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "Holiday Family Travel",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-12-23T09:00",
+      "end": "2026-12-23T13:00",
+      "status": "planned",
+      "notes": "Travel to fictional family gathering; check weather."
+    },
+    {
+      "workspace": "Voss Family",
+      "title": "December Holiday Family Gathering",
+      "event_type": "family",
+      "requires_travel": true,
+      "start": "2026-12-25T12:00",
+      "end": "2026-12-25T19:00",
+      "status": "planned",
+      "notes": "Family meal and gift exchange."
+    },
+    {
+      "workspace": "Friday Game Night",
+      "title": "Winter Break Online Gaming Session",
+      "event_type": "gaming",
+      "requires_travel": false,
+      "start": "2026-12-27T19:00",
+      "end": "2026-12-27T22:00",
+      "status": "planned",
+      "notes": "Co-op games with friends."
+    },
+    {
+      "workspace": "Molecular Systems Lab",
+      "title": "January Research Preparation",
+      "event_type": "study",
+      "requires_travel": false,
+      "start": "2026-12-29T14:00",
+      "end": "2026-12-29T16:00",
+      "status": "planned",
+      "notes": "Draft January sample plan and checklist."
+    }
+  ]
+}

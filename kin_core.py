@@ -167,20 +167,38 @@ def validate_event_proposal(data: dict, *, strict_michigan: bool = False) -> dic
 
 
 def detect_internal_conflicts(commitments: list[dict]) -> list[dict]:
-    """Commitment-vs-commitment overlaps inside the user's own timetable."""
-    live = [c for c in commitments if c.get("status") not in ("canceled", "completed")]
-    found = []
-    for i, first in enumerate(live):
-        for second in live[i + 1:]:
-            try:
-                if overlaps(first["start"], first["end"], second["start"], second["end"]):
-                    found.append({
-                        "a_id": first["id"], "b_id": second["id"],
-                        "a": first["title"], "b": second["title"],
-                        "start": min(first["start"], second["start"]),
-                    })
-            except ValueError:
-                continue
+    """Commitment-vs-commitment overlaps inside the user's own timetable.
+
+    Sort-and-sweep rather than comparing every pair: events are ordered by
+    start, and each one is only compared against those still open at that
+    moment. A full semester of several hundred commitments is re-checked on
+    every page render, so the pairwise version was too slow to keep.
+    """
+    live = []
+    for c in commitments:
+        if c.get("status") in ("canceled", "completed"):
+            continue
+        try:
+            live.append((parse_dt(c["start"]), parse_dt(c["end"]), c))
+        except (ValueError, KeyError):
+            continue
+    live.sort(key=lambda item: item[0])
+
+    found: list[dict] = []
+    active: list[tuple[datetime, datetime, dict]] = []
+    for start, end, event in live:
+        if end <= start:
+            continue
+        # Drop everything that finished before this one began; half-open
+        # intervals mean a touching end is not a conflict.
+        active = [item for item in active if item[1] > start]
+        for other_start, _other_end, other in active:
+            found.append({
+                "a_id": other["id"], "b_id": event["id"],
+                "a": other["title"], "b": event["title"],
+                "start": min(other_start, start).isoformat(),
+            })
+        active.append((start, end, event))
     return found
 
 
