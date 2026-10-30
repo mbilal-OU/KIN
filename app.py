@@ -7,6 +7,7 @@ provenance by kin_sources. The language model explains; it never decides.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from datetime import datetime, time, timedelta
 
 import streamlit as st
@@ -38,6 +39,7 @@ load_dotenv()
 OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closings/"
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
 DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
+OFFICIAL_KIN_LOGO = Path(__file__).resolve().parent / "assets" / "kin-official-logo.png"
 
 st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
@@ -184,12 +186,15 @@ workspaces = store.list_workspaces()
 preferences = prefs()
 
 with st.sidebar:
-    st.markdown(
-        '<div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">'
-        '<div class="kin-mark" style="width:36px;height:36px;font-size:14px">KIN</div>'
-        '<div style="line-height:1.25">'
-        '<b style="font-size:12px;letter-spacing:.14em;text-transform:uppercase">'
-        'Kinetic<br>Intelligence Network</b></div></div>', unsafe_allow_html=True)
+    if OFFICIAL_KIN_LOGO.is_file():
+        st.image(str(OFFICIAL_KIN_LOGO), use_container_width=True)
+    else:
+        st.markdown(
+            '<div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">'
+            '<div class="kin-mark" style="width:36px;height:36px;font-size:14px">KIN</div>'
+            '<div style="line-height:1.25">'
+            '<b style="font-size:12px;letter-spacing:.14em;text-transform:uppercase">'
+            'Kinetic<br>Intelligence Network</b></div></div>', unsafe_allow_html=True)
 
     names = [w["name"] for w in workspaces]
     current = active_workspace(workspaces)
@@ -231,7 +236,12 @@ with st.sidebar:
 
 commitments = store.list_commitments(workspace["id"])
 companion = display_assistant(workspace, preferences)
-st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"), unsafe_allow_html=True)
+if OFFICIAL_KIN_LOGO.is_file():
+    st.image(str(OFFICIAL_KIN_LOGO), width=550)
+    st.caption(f"{workspace['name']} workspace · guest mode · KIN Campus Edition")
+else:
+    st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"),
+                unsafe_allow_html=True)
 
 
 # ======================================================================
