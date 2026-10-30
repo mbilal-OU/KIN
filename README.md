@@ -1,4 +1,12 @@
+<div align="center">
+
 # KIN — Kinetic Intelligence Network
+
+**Life changes. KIN moves with you.**
+
+*Your AI companion for learning, work, and everyday life.*
+
+</div>
 
 **Hacktoberfest Hack Day Rochester x GrizzHacks — 30 October 2026**
 
@@ -13,6 +21,16 @@ events clash, and it never decides whether a class is canceled.
 
 > KIN is a student project. It is **not** an official Oakland University
 > service and **not** an emergency notification system.
+
+---
+
+## Final brand identity
+
+The official **KIN project identity** selected by the founders is the **metallic-gold intertwined symbol** beside the gold **KIN** wordmark (with a dotted **I**) on black, the white name **Kinetic Intelligence Network**, and the tagline **“Life changes. KIN moves with you.”**
+
+**Primary logo asset:** `assets/kin-official-logo.png` (team-approved artwork; awaiting binary upload). Until the original image has been committed, keep the existing text-based KIN header rather than substitute an unapproved logo. The app and pitch website should both use the exact same uploaded asset once available.
+
+**Colors:** black, warm metallic gold and white; Oakland University-inspired, but independently branded. **KIN is not affiliated with or endorsed by Oakland University.**
 
 ---
 
