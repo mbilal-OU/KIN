@@ -11,11 +11,67 @@ width with a 16px gutter.
 """
 from __future__ import annotations
 
+import base64
 import html
+import io
+from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 BRAND = "KIN"
 BRAND_LONG = "Kinetic Intelligence Network"
+TAGLINE = "Life changes. KIN moves with you."
+
+ASSETS = Path(__file__).parent / "assets"
+LOGO = ASSETS / "kin-logo.png"
+ICON = ASSETS / "kin-icon.png"
+
+
+@lru_cache(maxsize=8)
+def image_data_uri(path: str, max_height: int) -> str:
+    """Return a downscaled PNG as a data URI, or '' when unavailable.
+
+    The source artwork is large (the wordmark is ~1.2 MB at 2048px). Embedding
+    it raw would ship well over a megabyte of HTML on every rerun, so it is
+    resized once per process and cached. Returning '' lets the caller fall back
+    to text, which keeps the app working if the assets are missing.
+    """
+    source = Path(path)
+    if not source.exists():
+        return ""
+    try:
+        from PIL import Image
+    except ImportError:
+        return ""
+    try:
+        with Image.open(source) as image:
+            image = image.convert("RGBA")
+            if image.height > max_height:
+                ratio = max_height / image.height
+                image = image.resize(
+                    (max(1, round(image.width * ratio)), max_height),
+                    Image.LANCZOS)
+            buffer = io.BytesIO()
+            image.save(buffer, format="PNG", optimize=True)
+    except (OSError, ValueError):
+        return ""
+    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def logo_available() -> bool:
+    return LOGO.exists()
+
+
+def icon_image():
+    """The app icon as a PIL Image for st.set_page_config, or None."""
+    if not ICON.exists():
+        return None
+    try:
+        from PIL import Image
+        return Image.open(ICON)
+    except (ImportError, OSError):
+        return None
 
 GOLD = "#F6B61C"
 GOLD_DEEP = "#8A6200"
@@ -119,16 +175,49 @@ html, body, [class*="st-"], .stMarkdown, button, input, select, textarea {
   text-transform: uppercase;
 }
 .kin-wordmark span { color: #C9CCD3; font-size: 12.5px; font-weight: 450; }
+/* Official wordmark. The artwork is already gold-on-black, so it sits
+   directly on the masthead with no plate behind it. */
+.kin-logo {
+  height: 54px; width: auto; max-width: min(58vw, 420px);
+  object-fit: contain; display: block;
+}
+.kin-masthead-meta {
+  color: #C9CCD3; font-size: 12.5px; font-weight: 450;
+  padding-left: 16px; margin-left: 4px;
+  border-left: 1px solid rgba(255,255,255,.17);
+  align-self: center; max-width: 230px;
+}
 .kin-masthead-tag {
   margin-left: auto; flex: 0 0 auto; color: #0B0B0C; background: var(--kin-gold);
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
   border-radius: 999px; padding: 6px 13px;
 }
+@media (max-width: 860px) {
+  .kin-masthead-meta { border-left: 0; padding-left: 0; margin-left: 0; }
+}
 @media (max-width: 680px) {
   .kin-masthead { flex-wrap: wrap; gap: 12px; padding: 16px; }
   .kin-masthead-tag { margin-left: 0; }
   .kin-wordmark b { font-size: 15px; }
+  .kin-logo { height: 42px; max-width: 72vw; }
+  .kin-masthead-meta { flex-basis: 100%; max-width: none; }
 }
+
+/* Sidebar brand lockup */
+.kin-sb-brand {
+  display: flex; align-items: center; gap: 11px; margin-bottom: 16px;
+}
+.kin-sb-mark {
+  width: 38px; height: 38px; flex: 0 0 38px; border-radius: 10px;
+  object-fit: contain; background: #0B0B0C; padding: 3px;
+  border: 1px solid rgba(246,182,28,.35);
+}
+.kin-sb-text { line-height: 1.3; min-width: 0; }
+.kin-sb-text b {
+  display: block; font-size: 11.5px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase; color: var(--kin-text);
+}
+.kin-sb-text span { font-size: 11px; color: var(--kin-muted); }
 
 /* ================================================================= hero */
 .kin-hero { margin: 0 0 6px; }
@@ -344,13 +433,43 @@ def _esc(value: Any) -> str:
 
 
 def masthead(subtitle: str, tag: str = "Hacktoberfest 2026") -> str:
+    """The brand bar. Uses the official wordmark when present, text otherwise.
+
+    The alt text carries the full brand name so the heading is still announced
+    to a screen reader and still searchable when the image is used.
+    """
+    wordmark = image_data_uri(str(LOGO), 108)
+    if wordmark:
+        brand = (
+            f'<img class="kin-logo" src="{wordmark}" '
+            f'alt="{_esc(BRAND_LONG)} — {_esc(TAGLINE)}">'
+        )
+    else:
+        brand = (f'<div class="kin-mark">{BRAND}</div>'
+                 f'<div class="kin-wordmark"><b>{_esc(BRAND_LONG)}</b>'
+                 f'<span>{_esc(TAGLINE)}</span></div>')
     return (
         '<div class="kin-masthead">'
-        f'<div class="kin-mark">{BRAND}</div>'
-        f'<div class="kin-wordmark"><b>{BRAND_LONG}</b>'
-        f'<span>{_esc(subtitle)}</span></div>'
+        f'{brand}'
+        f'<div class="kin-masthead-meta">{_esc(subtitle)}</div>'
         f'<div class="kin-masthead-tag">{_esc(tag)}</div>'
         '</div>'
+    )
+
+
+def sidebar_brand() -> str:
+    """Compact mark plus wordmark for the sidebar."""
+    mark = image_data_uri(str(ICON), 76)
+    glyph = (f'<img src="{mark}" alt="" class="kin-sb-mark">' if mark
+             else f'<div class="kin-mark" style="width:36px;height:36px;'
+                  f'font-size:14px">{BRAND}</div>')
+    return (
+        '<div class="kin-sb-brand">'
+        f'{glyph}'
+        '<div class="kin-sb-text">'
+        f'<b>{_esc(BRAND_LONG)}</b>'
+        f'<span>{_esc(TAGLINE)}</span>'
+        '</div></div>'
     )
 
 

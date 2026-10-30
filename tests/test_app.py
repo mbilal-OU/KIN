@@ -223,6 +223,50 @@ def test_masthead_shows_the_full_brand_name(app):
     assert "Keep It Navigable" not in rendered
 
 
+def test_official_logo_is_rendered_with_accessible_alt_text(app):
+    import kin_theme
+    if not kin_theme.logo_available():
+        pytest.skip("brand assets are not present")
+    rendered = " ".join(m.value for m in app.markdown)
+    assert "data:image/png;base64," in rendered
+    # The brand name must still be announced when the mark is an image.
+    assert 'alt="Kinetic Intelligence Network' in rendered
+
+
+def test_tagline_appears_in_the_brand_lockup(app):
+    rendered = " ".join(m.value for m in app.markdown)
+    assert "moves with you" in rendered
+
+
+def test_embedded_logo_is_downscaled_not_shipped_raw():
+    """The source artwork is >1 MB; embedding it raw on every rerun is not acceptable."""
+    import kin_theme
+    if not kin_theme.logo_available():
+        pytest.skip("brand assets are not present")
+    raw_bytes = kin_theme.LOGO.stat().st_size
+    embedded = kin_theme.image_data_uri(str(kin_theme.LOGO), 108)
+    assert embedded.startswith("data:image/png;base64,")
+    assert len(embedded) < raw_bytes / 4, "logo should be resized before embedding"
+    assert len(embedded) < 200_000
+
+
+def test_brand_helpers_fall_back_cleanly_when_assets_are_missing(tmp_path):
+    """A clone without the PNGs must still render a usable masthead."""
+    import kin_theme
+    missing = str(tmp_path / "nope.png")
+    assert kin_theme.image_data_uri(missing, 108) == ""
+    original = kin_theme.LOGO
+    try:
+        kin_theme.LOGO = tmp_path / "nope.png"
+        kin_theme.image_data_uri.cache_clear()
+        fallback = kin_theme.masthead("subtitle")
+        assert "<img" not in fallback
+        assert "Kinetic Intelligence Network" in fallback
+    finally:
+        kin_theme.LOGO = original
+        kin_theme.image_data_uri.cache_clear()
+
+
 def test_sidebar_navigation_covers_every_screen(app):
     options = list(app.sidebar.radio[0].options)
     for screen in SCREENS:

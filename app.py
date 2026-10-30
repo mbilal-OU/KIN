@@ -40,7 +40,8 @@ OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closing
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
 DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
 
-st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
+st.set_page_config(page_title="KIN | Kinetic Intelligence Network",
+                   page_icon=theme.icon_image() or "\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
 st.markdown(theme.CSS, unsafe_allow_html=True)
 
@@ -185,12 +186,7 @@ workspaces = store.list_workspaces()
 preferences = prefs()
 
 with st.sidebar:
-    st.markdown(
-        '<div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">'
-        '<div class="kin-mark" style="width:36px;height:36px;font-size:14px">KIN</div>'
-        '<div style="line-height:1.25">'
-        '<b style="font-size:12px;letter-spacing:.14em;text-transform:uppercase">'
-        'Kinetic<br>Intelligence Network</b></div></div>', unsafe_allow_html=True)
+    st.markdown(theme.sidebar_brand(), unsafe_allow_html=True)
 
     names = [w["name"] for w in workspaces]
     current = active_workspace(workspaces)
