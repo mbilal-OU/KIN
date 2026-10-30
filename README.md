@@ -1,19 +1,31 @@
 <p align="center">
-  <img src="assets/kin-logo.png" alt="KIN — Kinetic Intelligence Network. Life changes. KIN moves with you." width="640">
+  <img src="assets/kin-logo.png" alt="KIN , Kinetic Intelligence Network. Life changes. KIN moves with you." width="640">
 </p>
 
-<h1 align="center">KIN — Kinetic Intelligence Network</h1>
+<h1 align="center">KIN , Kinetic Intelligence Network</h1>
 
 <p align="center"><em>Life changes. KIN moves with you.</em></p>
 
-**Hacktoberfest Hack Day Rochester x GrizzHacks — 30 October 2026**
+<p align="center">
+  <a href="http://141.210.133.171:8503/"><img alt="Live app" src="https://img.shields.io/badge/Live%20App-Open%20KIN-C9A35D?style=for-the-badge&logo=streamlit&logoColor=white"></a>
+  <a href="https://github.com/mbilal-OU/KIN"><img alt="GitHub repository" src="https://img.shields.io/badge/Source-GitHub-25272C?style=for-the-badge&logo=github&logoColor=white"></a>
+  <a href="https://github.com/mbilal-OU/KIN/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-25272C?style=for-the-badge"></a>
+</p>
 
-A privacy-first student life companion for Oakland University. KIN connects a
+<p align="center">
+  <a href="http://141.210.133.171:8503/">Launch the KIN app</a> |
+  <a href="#quick-start">Run locally</a> |
+  <a href="#how-it-is-put-together">Architecture</a>
+</p>
+
+**Hacktoberfest Hack Day Rochester x GrizzHacks , 30 October 2026**
+
+A student life companion for Oakland University. KIN connects a
 fictional student's timetable with **live National Weather Service data** and
 **real, source-linked OU athletics events**, detects time conflicts with
 deterministic rules, and asks permission before it changes anything.
 
-**Gemma 4** does the language work — reading free text into a structured
+**Gemma 4** does the language work , reading free text into a structured
 proposal, and explaining what the rules found. It never decides whether two
 events clash, and it never decides whether a class is canceled.
 
@@ -24,11 +36,11 @@ events clash, and it never decides whether a class is canceled.
 
 ## What actually works
 
-Verified on this machine, 30 October 2026:
+Reported verification on 30 October 2026:
 
 | Capability | Status | Evidence |
 |---|---|---|
-| Live NWS hourly forecast + active alerts | **Working** | `tests/live_smoke.py` — 12 periods, office DTX |
+| Live NWS hourly forecast + active alerts | **Working** | `tests/live_smoke.py` , 12 periods, office DTX |
 | Gemma 4 free-text → validated event proposal | **Working** | `gemma-4-26b-a4b-it` via Gemini API |
 | Gemma 4 grounded daily briefing | **Working** | Live call, no closure claim |
 | Deterministic conflict / weather-impact engine | **Working** | 129 automated tests |
@@ -77,7 +89,7 @@ GEMINI_API_KEY=your_own_key_from_aistudio_google_com
 KIN_GEMMA_MODEL=gemma-4-26b-a4b-it
 ```
 
-**Fully local alternative** — nothing leaves your machine:
+**Fully local alternative** , nothing leaves your machine:
 
 ```ini
 KIN_AI_PROVIDER=ollama
@@ -87,7 +99,7 @@ KIN_OLLAMA_MODEL=gemma4:e2b
 (`ollama pull gemma4:e2b` first. Check Gemma prize eligibility for the local
 route with the Rochester organizers if that matters to you.)
 
-KIN runs without any key — the AI panels show a clearly labeled deterministic
+KIN runs without any key , the AI panels show a clearly labeled deterministic
 fallback instead of pretending the model answered.
 
 ---
@@ -117,7 +129,7 @@ Curated OU events ──────────> provenance + estimated-end lab
                                                                                        v
                                                             Gemma 4 explains the structured result
                                                                                        │
-                                                                 Proposal — no side effect yet
+                                                                 Proposal , no side effect yet
                                                                                        │
                                                                       User APPROVE / REJECT
                                                                                        │
@@ -155,14 +167,14 @@ security, testing, roadmap.
 
 ## The two demonstration loops
 
-**A — Weather and an exam.** The sample timetable has a fictional 9:00 AM exam
-on 31 October. Turn on the clearly marked SIMULATED winter warning (06:30–12:00)
+**A , Weather and an exam.** The sample timetable has a fictional 9:00 AM exam
+on 31 October. Turn on the clearly marked SIMULATED winter warning (06:30-12:00)
 and KIN finds the overlap with the exam *plus your travel buffer*, shows which
 rule matched, and says plainly that no university cancellation is confirmed.
 The simulated alert is rendered in its own dashed, purple-bordered section and
 stays flagged `is_simulation` everywhere downstream, including in the AI prompt.
 
-**B — A real OU event.** Discover OU shows Oakland Women's Volleyball vs
+**B , A real OU event.** Discover OU shows Oakland Women's Volleyball vs
 Milwaukee (Volloween Weekend) with its official Athletics source URL, the date
 it was verified, and an explicit "end time estimated" badge. KIN checks it
 against your timetable with your chosen buffer, you press *Propose*, and nothing
@@ -205,7 +217,7 @@ shows `VERIFIED` only because KIN re-read the row it wrote.
 - Volleyball Oct 31: <https://goldengrizzlies.com/news/2026/7/8/womens-volleyball-golden-grizzlies-release-2026-volleyball-promotions-schedule.aspx>
 - Gemma on the Gemini API: <https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api>
 
-Event records must be rechecked if used after 30–31 October 2026.
+Event records must be rechecked if used after 30-31 October 2026.
 
 ---
 
