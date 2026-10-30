@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/kin-logo.png" alt="KIN , Kinetic Intelligence Network. Life changes. KIN moves with you." width="640">
+  <img src="assets/kin-logo.png" alt="KIN: Kinetic Intelligence Network. Life changes. KIN moves with you." width="640">
 </p>
 
-<h1 align="center">KIN , Kinetic Intelligence Network</h1>
+<h1 align="center">KIN: Kinetic Intelligence Network</h1>
 
 <p align="center"><em>Life changes. KIN moves with you.</em></p>
 
@@ -18,19 +18,108 @@
   <a href="#how-it-is-put-together">Architecture</a>
 </p>
 
-**Hacktoberfest Hack Day Rochester x GrizzHacks , 30 October 2026**
+**Hacktoberfest Hack Day Rochester x GrizzHacks | 30 October 2026**
 
 A student life companion for Oakland University. KIN connects a
 fictional student's timetable with **live National Weather Service data** and
 **real, source-linked OU athletics events**, detects time conflicts with
 deterministic rules, and asks permission before it changes anything.
 
-**Gemma 4** does the language work , reading free text into a structured
+**Gemma 4** does the language work, reading free text into a structured
 proposal, and explaining what the rules found. It never decides whether two
 events clash, and it never decides whether a class is canceled.
 
 > KIN is a student project. It is **not** an official Oakland University
 > service and **not** an emergency notification system.
+
+---
+
+## Explore KIN
+
+[**Open live demo**](http://141.210.133.171:8501/) | [**How it works**](#how-kin-works) | [**Technology**](#technology-we-used) | [**Demo walkthrough**](#try-the-demo) | [**Tests**](#tests) | [**Trust and limitations**](#honest-limitations)
+
+## How KIN works
+
+KIN brings a student's commitments and real-world context together. **Rules identify the impact, Gemma explains it, and the student approves any change.**
+
+```mermaid
+flowchart TD
+    A["Student schedule<br/>Classes, exams, work"] --> D["KIN decision engine<br/>Deterministic Python rules"]
+    B["National Weather Service<br/>Forecasts and alerts"] --> D
+    C["Oakland University<br/>Source-linked campus events"] --> D
+    D --> E["Validate times and detect<br/>conflicts or weather overlap"]
+    E --> F["Gemma 4<br/>Explain findings in plain language"]
+    F --> G{"Student approves<br/>a proposed change?"}
+    G -->|"Approve"| H["Save to SQLite<br/>Read back and verify"]
+    G -->|"Reject"| I["Keep the existing schedule"]
+    H --> J["Updated planner and history"]
+    classDef input fill:#1c232b,stroke:#c9a35d,color:#ffffff
+    classDef logic fill:#342b1d,stroke:#e2b264,color:#ffffff
+    classDef decision fill:#242424,stroke:#e2b264,color:#ffffff
+    classDef result fill:#193229,stroke:#65ad87,color:#ffffff
+    class A,B,C input
+    class D,E,F logic
+    class G decision
+    class H,I,J result
+```
+
+> **The key distinction:** AI explains. Code verifies. You decide. A weather warning is not a confirmed university closure.
+
+## Technology we used
+
+| Layer | Technology | What we built |
+|---|---|---|
+| User interface | **Python, Streamlit** | Interactive planner, weather view, event discovery, approvals, assistant and settings |
+| AI | **Gemma 4, Gemini API** | Natural-language event proposals and grounded explanations, with a local Ollama option |
+| Scheduling logic | **Python** | Validated time zones, overlap detection, buffers and weather impact rules |
+| Live data | **National Weather Service API** | Michigan forecasts and active weather alerts |
+| Campus information | **Official OU source links** | Curated athletics events with provenance |
+| Storage | **SQLite** | Local schedules, approval history and verified writes |
+| Calendar portability | **iCalendar (.ics)** | Import previews and exports |
+| Quality | **pytest, GitHub** | Automated offline tests, source control and documented limitations |
+
+## Try the demo
+
+<details>
+<summary><strong>Scenario 1: A winter storm and an exam</strong></summary>
+
+1. Open the [live KIN application](http://141.210.133.171:8501/).
+2. View the fictional student timetable and its exam.
+3. Enable the clearly labeled **simulated** winter warning.
+4. See how KIN identifies the time overlap and explains the potential impact.
+5. Check the official Oakland University closure source before drawing any conclusion about classes.
+
+**What this demonstrates:** Source-aware context, deterministic impact checking and honest simulation labels.
+
+</details>
+
+<details>
+<summary><strong>Scenario 2: Discover an Oakland University event</strong></summary>
+
+1. Open **Discover OU** and inspect a source-linked athletics event.
+2. Check how the event fits the student's existing timetable.
+3. Propose adding it, then review the proposal.
+4. Approve or reject the change.
+5. If approved, KIN saves the event and verifies it by reading the stored record back.
+
+**What this demonstrates:** Campus discovery, conflict detection and human-controlled writes.
+
+</details>
+
+<details>
+<summary><strong>Scenario 3: Ask Gemma 4 for help</strong></summary>
+
+1. Open the assistant screen.
+2. Ask a planning question or describe a proposed commitment.
+3. Review the model's explanation or structured proposal.
+4. KIN validates proposed event details before any calendar action.
+5. If the model is unavailable, the application labels its fallback instead of presenting it as an AI response.
+
+**What this demonstrates:** An open-weight language model integrated with verifiable application logic.
+
+</details>
+
+**[Launch KIN](http://141.210.133.171:8501/)**
 
 ---
 
