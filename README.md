@@ -7,13 +7,13 @@
 <p align="center"><em>Life changes. KIN moves with you.</em></p>
 
 <p align="center">
-  <a href="http://141.210.133.171:8503/"><img alt="Live app" src="https://img.shields.io/badge/Live%20App-Open%20KIN-C9A35D?style=for-the-badge&logo=streamlit&logoColor=white"></a>
+  <a href="http://141.210.133.171:8501/"><img alt="Live app" src="https://img.shields.io/badge/Live%20App-Open%20KIN-C9A35D?style=for-the-badge&logo=streamlit&logoColor=white"></a>
   <a href="https://github.com/mbilal-OU/KIN"><img alt="GitHub repository" src="https://img.shields.io/badge/Source-GitHub-25272C?style=for-the-badge&logo=github&logoColor=white"></a>
   <a href="https://github.com/mbilal-OU/KIN/blob/main/LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-25272C?style=for-the-badge"></a>
 </p>
 
 <p align="center">
-  <a href="http://141.210.133.171:8503/">Launch the KIN app</a> |
+  <a href="http://141.210.133.171:8501/">Launch the KIN app</a> |
   <a href="#quick-start">Run locally</a> |
   <a href="#how-it-is-put-together">Architecture</a>
 </p>
