@@ -1,4 +1,4 @@
-"""KIN — Keep It Navigable. Streamlit interface.
+"""KIN — Kinetic Intelligence Network. Streamlit interface.
 
 This file is presentation and orchestration only. Every factual claim shown to
 the user is computed in kin_core (deterministic rules) or retrieved with
@@ -39,7 +39,7 @@ OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closing
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
 DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
 
-st.set_page_config(page_title="KIN | Keep It Navigable", page_icon="\U0001F9ED",
+st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
 st.markdown(theme.CSS, unsafe_allow_html=True)
 
@@ -187,7 +187,7 @@ with st.sidebar:
     st.markdown(
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
         '<div class="kin-mark" style="width:34px;height:34px;font-size:15px">KIN</div>'
-        '<div style="line-height:1.2"><b style="font-size:15px">Keep It Navigable</b><br>'
+        '<div style="line-height:1.2"><b style="font-size:15px">Kinetic Intelligence Network</b><br>'
         '<span style="font-size:11.5px;color:var(--kin-muted)">Oakland University companion</span>'
         '</div></div>', unsafe_allow_html=True)
 
@@ -209,10 +209,23 @@ with st.sidebar:
         store.update_workspace(workspace["id"], assistant_alias=alias_value)
         workspace["assistant_alias"] = alias_value
 
+    # A stable navigation key lets dashboard actions route to existing screens.
+    st.session_state.setdefault("kin_nav_screen", "Today")
     screen = st.radio("Go to", [
         "Today", "Planner", "Michigan Weather", "Discover OU",
         "Approvals & History", "Ask the assistant", "Settings & Trust",
-    ], label_visibility="collapsed")
+    ], key="kin_nav_screen", label_visibility="collapsed")
+
+    with st.expander("✨ Show me around", expanded=False):
+        st.caption("Four quick steps to demonstrate KIN with fictional data.")
+        st.markdown("① **Plan** a fictional event with Gemma 4")
+        st.markdown("② **Check** Michigan weather and the labeled simulation")
+        st.markdown("③ **Discover** an OU event and propose adding it")
+        st.markdown("④ **Approve** the local calendar update")
+        if st.button("Start the tour", key="kin_tour_start", use_container_width=True):
+            st.session_state["kin_nav_screen"] = "Today"
+            st.rerun()
+
 
     status = provider_status()
     chip = "live" if status["configured"] else "blocked"
@@ -232,6 +245,32 @@ st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"), unsa
 # ======================================================================
 if screen == "Today":
     greeting = preferences.get("preferred_name", "").strip()
+    st.markdown(
+        '<section class="kin-hero">'
+        '<div class="kin-eyebrow">KIN CAMPUS EDITION · OAKLAND UNIVERSITY-INSPIRED</div>'
+        '<h2>Life changes. <span style="color:#E6B967">KIN moves with you.</span></h2>'
+        '<p>One day. Connected commitments, verified context, and campus opportunities.</p>'
+        '</section>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="kin-journey"><strong>🎯 Try the KIN experience</strong>'
+        '<small>Follow a guided, fictional student journey. Check a commitment, '
+        'explore a simulated weather change, and approve a campus event.</small>'
+        '<div class="kin-steps"><span class="kin-step">1 · Plan</span>'
+        '<span class="kin-step">2 · Weather</span>'
+        '<span class="kin-step">3 · Discover</span>'
+        '<span class="kin-step">4 · Approve</span></div></div>',
+        unsafe_allow_html=True)
+    tour_cols = st.columns(4)
+    for col, (label, destination, token) in zip(tour_cols, [
+        ("1 · Plan", "Planner", "plan"),
+        ("2 · Weather", "Michigan Weather", "weather"),
+        ("3 · Discover", "Discover OU", "discover"),
+        ("4 · Approve", "Approvals & History", "approve"),
+    ]):
+        if col.button(label, key=f"kin_tour_{token}", use_container_width=True):
+            st.session_state["kin_nav_screen"] = destination
+            st.rerun()
+    st.caption("DEMO DATE · October 30, 2026 · Fictional academic events; current NWS data is fetched separately.")
     st.subheader(f"Good day{', ' + greeting if greeting else ''} — I'm {companion}")
     horizon = DEMO_TODAY
     upcoming = [c for c in commitments
@@ -253,6 +292,29 @@ if screen == "Today":
         ("Weather impacts", len(impacts), "danger" if impacts else ""),
         ("Open windows today", len(free), ""),
     ]), unsafe_allow_html=True)
+
+    # Prioritize a clear next action, not only a dashboard of counters.
+    if impacts:
+        st.warning("**Needs attention:** A weather time-window overlaps a planned commitment. "
+                   "Review the source and the SIMULATED label before making decisions.")
+        if st.button("Review weather impact →", key="kin_next_weather", type="primary"):
+            st.session_state["kin_nav_screen"] = "Michigan Weather"
+            st.rerun()
+    elif conflicts:
+        st.info("**Next action:** Your example timetable has overlapping commitments.")
+        if st.button("Review my timetable →", key="kin_next_planner"):
+            st.session_state["kin_nav_screen"] = "Planner"
+            st.rerun()
+    else:
+        st.info("**You're ready to explore.** Check a source-linked campus event "
+                "or ask KIN to help organize a new commitment.")
+        actions = st.columns(2)
+        if actions[0].button("Find campus activities →", key="kin_next_discover", use_container_width=True):
+            st.session_state["kin_nav_screen"] = "Discover OU"
+            st.rerun()
+        if actions[1].button("Ask KIN AI →", key="kin_next_ai", use_container_width=True):
+            st.session_state["kin_nav_screen"] = "Ask the assistant"
+            st.rerun()
 
     for c in conflicts:
         notify("conflict", "Schedule overlap", f"{c['a']} overlaps {c['b']}",
@@ -978,8 +1040,18 @@ elif screen == "Ask the assistant":
         "KIN cannot see Moodle, MySAIL, email or any university system."),
         unsafe_allow_html=True)
 
-    question = st.text_input("Your question",
-                             placeholder="What is on my timetable before the exam?")
+    st.caption("Explore questions grounded in your selected timetable. A model call only happens after Ask.")
+    suggested_question = st.selectbox("Suggested question", [
+        "Choose a question or write my own",
+        "What is my next important commitment?",
+        "What conflicts exist in my current timetable?",
+        "What should I check before my exam commute?",
+        "What information about OU closures is confirmed?",
+    ], key="kin_suggested_question")
+    question = st.text_input(
+        "Your question",
+        value="" if suggested_question == "Choose a question or write my own" else suggested_question,
+        placeholder="What is on my timetable before the exam?")
     if st.button("Ask", type="primary") and question.strip():
         weather = st.session_state.get("weather")
         context = ai_payload(
