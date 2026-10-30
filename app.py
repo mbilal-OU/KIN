@@ -1,4 +1,4 @@
-"""KIN — Keep It Navigable. Streamlit interface.
+"""KIN — Kinetic Intelligence Network. Streamlit interface.
 
 This file is presentation and orchestration only. Every factual claim shown to
 the user is computed in kin_core (deterministic rules) or retrieved with
@@ -7,6 +7,7 @@ provenance by kin_sources. The language model explains; it never decides.
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, time, timedelta
 
 import streamlit as st
@@ -38,8 +39,11 @@ load_dotenv()
 OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closings/"
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
 DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
+# Safe public-hackathon default: disable private calendar uploads on an unprotected server.
+# For isolated local development only, set KIN_PUBLIC_DEMO=0 to enable .ics uploads.
+PUBLIC_DEMO = os.getenv("KIN_PUBLIC_DEMO", "1").strip() != "0"
 
-st.set_page_config(page_title="KIN | Keep It Navigable", page_icon="\U0001F9ED",
+st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
 st.markdown(theme.CSS, unsafe_allow_html=True)
 
@@ -179,6 +183,12 @@ def run_model(fn, fallback_fn, *args, **kwargs) -> tuple[str, str, bool]:
                 f"{FALLBACK_TAG} ({type(exc).__name__})", False)
 
 
+# Route requests are made in Streamlit callbacks, before widgets instantiate.
+# Assigning a radio widget's session-state key after rendering raises an error.
+def navigate_to(destination: str) -> None:
+    st.session_state["kin_nav_screen"] = destination
+
+
 # ------------------------------------------------------------------ sidebar
 workspaces = store.list_workspaces()
 preferences = prefs()
@@ -187,7 +197,7 @@ with st.sidebar:
     st.markdown(
         '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
         '<div class="kin-mark" style="width:34px;height:34px;font-size:15px">KIN</div>'
-        '<div style="line-height:1.2"><b style="font-size:15px">Keep It Navigable</b><br>'
+        '<div style="line-height:1.2"><b style="font-size:15px">Kinetic Intelligence Network</b><br>'
         '<span style="font-size:11.5px;color:var(--kin-muted)">Oakland University companion</span>'
         '</div></div>', unsafe_allow_html=True)
 
@@ -209,10 +219,22 @@ with st.sidebar:
         store.update_workspace(workspace["id"], assistant_alias=alias_value)
         workspace["assistant_alias"] = alias_value
 
+    # A stable navigation key lets dashboard actions route to existing screens.
+    st.session_state.setdefault("kin_nav_screen", "Today")
     screen = st.radio("Go to", [
         "Today", "Planner", "Michigan Weather", "Discover OU",
         "Approvals & History", "Ask the assistant", "Settings & Trust",
-    ], label_visibility="collapsed")
+    ], key="kin_nav_screen", label_visibility="collapsed")
+
+    with st.expander("✨ Show me around", expanded=False):
+        st.caption("Four quick steps to demonstrate KIN with fictional data.")
+        st.markdown("① **Plan** a fictional event with Gemma 4")
+        st.markdown("② **Check** Michigan weather and the labeled simulation")
+        st.markdown("③ **Discover** an OU event and propose adding it")
+        st.markdown("④ **Approve** the local calendar update")
+        st.button("Start the tour", key="kin_tour_start", use_container_width=True,
+                  on_click=navigate_to, args=("Today",))
+
 
     status = provider_status()
     chip = "live" if status["configured"] else "blocked"
@@ -220,7 +242,10 @@ with st.sidebar:
         theme.badge("AI " + ("ready" if status["configured"] else "not configured"), chip)
         + f'<div style="font-size:11.5px;color:var(--kin-muted);margin-top:2px">'
           f'{status["provider"]} · {status["model"]}</div>', unsafe_allow_html=True)
-    st.caption("Guest mode. No OU login. Fictional data only.")
+    st.caption("Guest mode · Fictional data only · Independent student project")
+    if PUBLIC_DEMO:
+        st.warning("PUBLIC DEMO: This instance is not private or multi-user isolated. "
+                   "Use fictional data only; calendar uploads are disabled.")
 
 commitments = store.list_commitments(workspace["id"])
 companion = display_assistant(workspace, preferences)
@@ -232,6 +257,31 @@ st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"), unsa
 # ======================================================================
 if screen == "Today":
     greeting = preferences.get("preferred_name", "").strip()
+    st.markdown(
+        '<section class="kin-hero">'
+        '<div class="kin-eyebrow">KIN CAMPUS EDITION · OAKLAND UNIVERSITY-INSPIRED</div>'
+        '<h2>Life changes. <span style="color:#E6B967">KIN moves with you.</span></h2>'
+        '<p>One day. Connected commitments, verified context, and campus opportunities.</p>'
+        '</section>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="kin-journey"><strong>🎯 Try the KIN experience</strong>'
+        '<small>Follow a guided, fictional student journey. Check a commitment, '
+        'explore a simulated weather change, and approve a campus event.</small>'
+        '<div class="kin-steps"><span class="kin-step">1 · Plan</span>'
+        '<span class="kin-step">2 · Weather</span>'
+        '<span class="kin-step">3 · Discover</span>'
+        '<span class="kin-step">4 · Approve</span></div></div>',
+        unsafe_allow_html=True)
+    tour_cols = st.columns(4)
+    for col, (label, destination, token) in zip(tour_cols, [
+        ("1 · Plan", "Planner", "plan"),
+        ("2 · Weather", "Michigan Weather", "weather"),
+        ("3 · Discover", "Discover OU", "discover"),
+        ("4 · Approve", "Approvals & History", "approve"),
+    ]):
+        col.button(label, key=f"kin_tour_{token}", use_container_width=True,
+                   on_click=navigate_to, args=(destination,))
+    st.caption("DEMO DATE · October 30, 2026 · Fictional academic events; current NWS data is fetched separately.")
     st.subheader(f"Good day{', ' + greeting if greeting else ''} — I'm {companion}")
     horizon = DEMO_TODAY
     upcoming = [c for c in commitments
@@ -253,6 +303,27 @@ if screen == "Today":
         ("Weather impacts", len(impacts), "danger" if impacts else ""),
         ("Open windows today", len(free), ""),
     ]), unsafe_allow_html=True)
+
+    # Prioritize a clear next action, not only a dashboard of counters.
+    if impacts:
+        st.warning("**Needs attention:** A weather time-window overlaps a planned commitment. "
+                   "Review the source and the SIMULATED label before making decisions.")
+        st.button("Review weather impact →", key="kin_next_weather", type="primary",
+                  on_click=navigate_to, args=("Michigan Weather",))
+    elif conflicts:
+        st.info("**Next action:** Your example timetable has overlapping commitments.")
+        st.button("Review my timetable →", key="kin_next_planner",
+                  on_click=navigate_to, args=("Planner",))
+    else:
+        st.info("**You're ready to explore.** Check a source-linked campus event "
+                "or ask KIN to help organize a new commitment.")
+        actions = st.columns(2)
+        actions[0].button("Find campus activities →", key="kin_next_discover",
+                          use_container_width=True, on_click=navigate_to,
+                          args=("Discover OU",))
+        actions[1].button("Ask KIN AI →", key="kin_next_ai",
+                          use_container_width=True, on_click=navigate_to,
+                          args=("Ask the assistant",))
 
     for c in conflicts:
         notify("conflict", "Schedule overlap", f"{c['a']} overlaps {c['b']}",
@@ -523,7 +594,10 @@ elif screen == "Planner":
         st.divider()
         st.markdown("**Import** an .ics file. KIN shows a preview and imports nothing "
                     "until you approve it.")
-        uploaded = st.file_uploader("Calendar file", type=["ics"])
+        if PUBLIC_DEMO:
+            st.info("Private calendar uploads are disabled in public demo mode. "
+                    "For a personal local instance, set KIN_PUBLIC_DEMO=0.")
+        uploaded = st.file_uploader("Calendar file", type=["ics"], disabled=PUBLIC_DEMO)
         import_type = st.selectbox("Import everything as", list(EVENT_TYPES),
                                    format_func=lambda k: EVENT_TYPES[k]["label"],
                                    index=list(EVENT_TYPES).index("class"))
@@ -978,8 +1052,18 @@ elif screen == "Ask the assistant":
         "KIN cannot see Moodle, MySAIL, email or any university system."),
         unsafe_allow_html=True)
 
-    question = st.text_input("Your question",
-                             placeholder="What is on my timetable before the exam?")
+    st.caption("Explore questions grounded in your selected timetable. A model call only happens after Ask.")
+    suggested_question = st.selectbox("Suggested question", [
+        "Choose a question or write my own",
+        "What is my next important commitment?",
+        "What conflicts exist in my current timetable?",
+        "What should I check before my exam commute?",
+        "What information about OU closures is confirmed?",
+    ], key="kin_suggested_question")
+    question = st.text_input(
+        "Your question",
+        value="" if suggested_question == "Choose a question or write my own" else suggested_question,
+        placeholder="What is on my timetable before the exam?")
     if st.button("Ask", type="primary") and question.strip():
         weather = st.session_state.get("weather")
         context = ai_payload(

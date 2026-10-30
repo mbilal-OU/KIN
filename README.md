@@ -1,6 +1,18 @@
-# KIN — Keep It Navigable
+<div align="center">
+
+# KIN
+
+### Kinetic Intelligence Network
+
+**Life changes. KIN moves with you.**
+
+*Your AI companion for learning, work, and everyday life.*
+
+</div>
 
 **Hacktoberfest Hack Day Rochester x GrizzHacks — 30 October 2026**
+
+**Life changes. KIN moves with you.**
 
 A privacy-first student life companion for Oakland University. KIN connects a
 fictional student's timetable with **live National Weather Service data** and
@@ -16,6 +28,32 @@ events clash, and it never decides whether a class is canceled.
 
 ---
 
+## Official brand identity
+
+**KIN** stands for **Kinetic Intelligence Network**, with the tagline **“Life changes. KIN moves with you.”** Our selected primary logo is the metallic-gold interwoven symbol and **KIN** wordmark (with a dotted **I**) on black, followed by the full name and tagline. This is KIN’s independent brand, not an official Oakland University or Golden Grizzlies logo.
+
+A copy of the selected logo artwork was supplied by the team. The precise raster master must be uploaded to `assets/kin-official-logo.png` before adding a README image reference. The repository text mark is a temporary fallback, **not a different brand identity**.
+
+For accessibility, use alternative text: `KIN — Kinetic Intelligence Network. Life changes. KIN moves with you.`
+
+## Interactive Campus Edition (new UI)
+
+The current feature branch adds an action-first **Today** page with a four-step guided tour:
+
+**1 · Plan → 2 · Weather → 3 · Discover → 4 · Approve**
+
+- A black-and-gold campus-themed hero with consistent typography, cards, and reduced-motion styling.
+- One clear recommended next action when the timetable has weather impacts or conflicts.
+- Working navigation buttons that route to the existing seven screens.
+- Suggested evidence-grounded questions in the KIN assistant, followed by an actual Gemma call when explicitly submitted.
+- **Public demo protection:** `KIN_PUBLIC_DEMO=1` by default, which warns visitors that storage is shared and disables private .ics calendar uploads. For a private, isolated local installation only, set `KIN_PUBLIC_DEMO=0`.
+
+> **Important:** This is still an unauthenticated, single-user prototype with a shared SQLite database per server process. It is **not suitable for collecting actual personal data** on a public server. The guide, demonstrations, and interactions must use fictional sample data.
+
+**Brand:** KIN — **Kinetic Intelligence Network**. The approved glossy metallic logo artwork is a separate final asset; the app's current enhanced CSS initials are a lightweight fallback and are not an exact reproduction of that logo.
+
+---
+
 ## What actually works
 
 Verified on this machine, 30 October 2026:
@@ -25,7 +63,7 @@ Verified on this machine, 30 October 2026:
 | Live NWS hourly forecast + active alerts | **Working** | `tests/live_smoke.py` — 12 periods, office DTX |
 | Gemma 4 free-text → validated event proposal | **Working** | `gemma-4-26b-a4b-it` via Gemini API |
 | Gemma 4 grounded daily briefing | **Working** | Live call, no closure claim |
-| Deterministic conflict / weather-impact engine | **Working** | 129 automated tests |
+| Deterministic conflict / weather-impact engine | **Working** | automated tests |
 | Approval-gated calendar writes with verification | **Working** | Read-back confirmed before success is shown |
 | Local SQLite persistence, export and erase | **Working** | Survives restart; one-click erase |
 | Workspaces, assistant naming, guest mode | **Working** | Per-workspace alias, blank allowed |
@@ -89,7 +127,7 @@ fallback instead of pretending the model answered.
 ## Tests
 
 ```bash
-python -m pytest -q          # 129 tests, no network, no API quota
+python -m pytest -q          # the offline test suite, no network, no API quota
 python tests/live_smoke.py   # separate, manual: real NWS + real Gemma
 ```
 
