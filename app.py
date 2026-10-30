@@ -179,6 +179,12 @@ def run_model(fn, fallback_fn, *args, **kwargs) -> tuple[str, str, bool]:
                 f"{FALLBACK_TAG} ({type(exc).__name__})", False)
 
 
+# Route requests are made in Streamlit callbacks, before widgets instantiate.
+# Assigning a radio widget's session-state key after rendering raises an error.
+def navigate_to(destination: str) -> None:
+    st.session_state["kin_nav_screen"] = destination
+
+
 # ------------------------------------------------------------------ sidebar
 workspaces = store.list_workspaces()
 preferences = prefs()
@@ -222,9 +228,8 @@ with st.sidebar:
         st.markdown("② **Check** Michigan weather and the labeled simulation")
         st.markdown("③ **Discover** an OU event and propose adding it")
         st.markdown("④ **Approve** the local calendar update")
-        if st.button("Start the tour", key="kin_tour_start", use_container_width=True):
-            st.session_state["kin_nav_screen"] = "Today"
-            st.rerun()
+        st.button("Start the tour", key="kin_tour_start", use_container_width=True,
+                  on_click=navigate_to, args=("Today",))
 
 
     status = provider_status()
@@ -267,9 +272,8 @@ if screen == "Today":
         ("3 · Discover", "Discover OU", "discover"),
         ("4 · Approve", "Approvals & History", "approve"),
     ]):
-        if col.button(label, key=f"kin_tour_{token}", use_container_width=True):
-            st.session_state["kin_nav_screen"] = destination
-            st.rerun()
+        col.button(label, key=f"kin_tour_{token}", use_container_width=True,
+                   on_click=navigate_to, args=(destination,))
     st.caption("DEMO DATE · October 30, 2026 · Fictional academic events; current NWS data is fetched separately.")
     st.subheader(f"Good day{', ' + greeting if greeting else ''} — I'm {companion}")
     horizon = DEMO_TODAY
@@ -297,24 +301,22 @@ if screen == "Today":
     if impacts:
         st.warning("**Needs attention:** A weather time-window overlaps a planned commitment. "
                    "Review the source and the SIMULATED label before making decisions.")
-        if st.button("Review weather impact →", key="kin_next_weather", type="primary"):
-            st.session_state["kin_nav_screen"] = "Michigan Weather"
-            st.rerun()
+        st.button("Review weather impact →", key="kin_next_weather", type="primary",
+                  on_click=navigate_to, args=("Michigan Weather",))
     elif conflicts:
         st.info("**Next action:** Your example timetable has overlapping commitments.")
-        if st.button("Review my timetable →", key="kin_next_planner"):
-            st.session_state["kin_nav_screen"] = "Planner"
-            st.rerun()
+        st.button("Review my timetable →", key="kin_next_planner",
+                  on_click=navigate_to, args=("Planner",))
     else:
         st.info("**You're ready to explore.** Check a source-linked campus event "
                 "or ask KIN to help organize a new commitment.")
         actions = st.columns(2)
-        if actions[0].button("Find campus activities →", key="kin_next_discover", use_container_width=True):
-            st.session_state["kin_nav_screen"] = "Discover OU"
-            st.rerun()
-        if actions[1].button("Ask KIN AI →", key="kin_next_ai", use_container_width=True):
-            st.session_state["kin_nav_screen"] = "Ask the assistant"
-            st.rerun()
+        actions[0].button("Find campus activities →", key="kin_next_discover",
+                          use_container_width=True, on_click=navigate_to,
+                          args=("Discover OU",))
+        actions[1].button("Ask KIN AI →", key="kin_next_ai",
+                          use_container_width=True, on_click=navigate_to,
+                          args=("Ask the assistant",))
 
     for c in conflicts:
         notify("conflict", "Schedule overlap", f"{c['a']} overlaps {c['b']}",
