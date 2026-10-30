@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 from datetime import datetime, time, timedelta
 
 import streamlit as st
@@ -42,6 +43,7 @@ DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
 # Safe public-hackathon default: disable private calendar uploads on an unprotected server.
 # For isolated local development only, set KIN_PUBLIC_DEMO=0 to enable .ics uploads.
 PUBLIC_DEMO = os.getenv("KIN_PUBLIC_DEMO", "1").strip() != "0"
+OFFICIAL_LOGO = Path(__file__).resolve().parent / "assets" / "kin-official-logo.png"
 
 st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
@@ -194,12 +196,18 @@ workspaces = store.list_workspaces()
 preferences = prefs()
 
 with st.sidebar:
-    st.markdown(
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
-        '<div class="kin-mark" style="width:34px;height:34px;font-size:15px">KIN</div>'
-        '<div style="line-height:1.2"><b style="font-size:15px">Kinetic Intelligence Network</b><br>'
-        '<span style="font-size:11.5px;color:var(--kin-muted)">Oakland University companion</span>'
-        '</div></div>', unsafe_allow_html=True)
+    if OFFICIAL_LOGO.exists():
+        st.image(str(OFFICIAL_LOGO), use_container_width=True)
+        st.caption("KIN · Kinetic Intelligence Network")
+    else:
+        st.markdown(
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
+            '<div class="kin-mark" style="width:34px;height:34px;font-size:15px">KIN</div>'
+            '<div style="line-height:1.2"><b style="font-size:15px">'
+            'Kinetic Intelligence Network</b><br>'
+            '<span style="font-size:11.5px;color:var(--kin-muted)">'
+            'Oakland University companion</span>'
+            '</div></div>', unsafe_allow_html=True)
 
     names = [w["name"] for w in workspaces]
     current = active_workspace(workspaces)
@@ -249,7 +257,12 @@ with st.sidebar:
 
 commitments = store.list_commitments(workspace["id"])
 companion = display_assistant(workspace, preferences)
-st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"), unsafe_allow_html=True)
+if OFFICIAL_LOGO.exists():
+    st.image(str(OFFICIAL_LOGO), width=550)
+    st.caption(f"{workspace['name']} workspace · guest mode · KIN Campus Edition")
+else:
+    st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"),
+                unsafe_allow_html=True)
 
 
 # ======================================================================
