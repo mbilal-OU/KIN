@@ -1,0 +1,32 @@
+[
+  {
+    "id": "ou-volleyball-20261030",
+    "title": "Oakland Women's Volleyball vs Milwaukee — Volloween Weekend",
+    "category": "sports",
+    "organizer": "Oakland Golden Grizzlies",
+    "start": "2026-10-30T18:00:00-04:00",
+    "end": "2026-10-30T20:00:00-04:00",
+    "end_is_estimated": true,
+    "venue": "OU Credit Union O'rena",
+    "source_url": "https://goldengrizzlies.com/news/2026/10/29/womens-volleyball-volleyball-preps-for-series-with-milwaukee.aspx",
+    "verified_as_of": "2026-10-29",
+    "status": "scheduled",
+    "provenance": "official_source",
+    "notes": "Start time confirmed by official OU Athletics report. End time is an illustrative planning estimate, not official."
+  },
+  {
+    "id": "ou-volleyball-20261031",
+    "title": "Oakland Women's Volleyball vs Milwaukee — Volloween Weekend",
+    "category": "sports",
+    "organizer": "Oakland Golden Grizzlies",
+    "start": "2026-10-31T14:00:00-04:00",
+    "end": "2026-10-31T16:00:00-04:00",
+    "end_is_estimated": true,
+    "venue": "OU Credit Union O'rena",
+    "source_url": "https://goldengrizzlies.com/news/2026/7/8/womens-volleyball-golden-grizzlies-release-2026-volleyball-promotions-schedule.aspx",
+    "verified_as_of": "2026-07-08",
+    "status": "scheduled",
+    "provenance": "official_source",
+    "notes": "Start time confirmed by official promotional schedule. End time is illustrative. Recheck status before attending."
+  }
+]

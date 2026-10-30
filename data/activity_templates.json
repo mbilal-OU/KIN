@@ -1,0 +1,74 @@
+[
+  {
+    "id": "tpl-game-night",
+    "title": "Game night with friends",
+    "event_type": "gaming",
+    "category": "gaming",
+    "default_duration_minutes": 120,
+    "requires_travel": false,
+    "description": "Block time for an online or in-person gaming session. You choose the date and time."
+  },
+  {
+    "id": "tpl-esports-practice",
+    "title": "Esports team practice",
+    "event_type": "gaming",
+    "category": "gaming",
+    "default_duration_minutes": 90,
+    "requires_travel": true,
+    "description": "Practice block for a campus esports team. Confirm the real session time with your team."
+  },
+  {
+    "id": "tpl-gym",
+    "title": "Recreation Center workout",
+    "event_type": "recreation",
+    "category": "recreation",
+    "default_duration_minutes": 60,
+    "requires_travel": true,
+    "description": "Exercise block. Check official Rec Well hours before you go."
+  },
+  {
+    "id": "tpl-study-block",
+    "title": "Focused study block",
+    "event_type": "study",
+    "category": "academic",
+    "default_duration_minutes": 90,
+    "requires_travel": false,
+    "description": "Protected study time before an exam or deadline."
+  },
+  {
+    "id": "tpl-lab-meeting",
+    "title": "Research lab meeting",
+    "event_type": "meeting",
+    "category": "academic",
+    "default_duration_minutes": 60,
+    "requires_travel": true,
+    "description": "Recurring research group meeting. Enter the time your group actually uses."
+  },
+  {
+    "id": "tpl-work-shift",
+    "title": "Part-time work shift",
+    "event_type": "work",
+    "category": "employment",
+    "default_duration_minutes": 240,
+    "requires_travel": true,
+    "description": "A shift at your job. KIN never contacts an employer on your behalf."
+  },
+  {
+    "id": "tpl-family-pickup",
+    "title": "Family pickup / responsibility",
+    "event_type": "family",
+    "category": "family",
+    "default_duration_minutes": 60,
+    "requires_travel": true,
+    "description": "A household commitment such as a pickup or appointment."
+  },
+  {
+    "id": "tpl-watch-party",
+    "title": "Detroit sports watch party",
+    "event_type": "recreation",
+    "category": "sports",
+    "default_duration_minutes": 180,
+    "requires_travel": false,
+    "description": "Your own watch-party block. KIN does not hold live Lions, Tigers, Pistons or Red Wings schedules — check the official team site for real fixture times."
+  }
+]

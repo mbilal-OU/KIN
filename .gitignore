@@ -218,3 +218,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------- KIN
+# Local KIN database: contains the user's own commitments and preferences.
+kin_local.db
+kin_local.db-journal
+*.db
+*.sqlite3
+
+# Local data exports and calendar files a user may download into the folder.
+kin-local-data.json
+*.ics
+
+# Internal planning handoff documents (not part of the submission).
+read/
+KIN_Claude_Implementation_Plan*
