@@ -1,4 +1,4 @@
-"""KIN — Keep It Navigable. Streamlit interface.
+"""KIN — Kinetic Intelligence Network. Streamlit interface.
 
 This file is presentation and orchestration only. Every factual claim shown to
 the user is computed in kin_core (deterministic rules) or retrieved with
@@ -39,7 +39,7 @@ OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closing
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
 DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
 
-st.set_page_config(page_title="KIN | Keep It Navigable", page_icon="\U0001F9ED",
+st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
 st.markdown(theme.CSS, unsafe_allow_html=True)
 
@@ -185,11 +185,11 @@ preferences = prefs()
 
 with st.sidebar:
     st.markdown(
-        '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
-        '<div class="kin-mark" style="width:34px;height:34px;font-size:15px">KIN</div>'
-        '<div style="line-height:1.2"><b style="font-size:15px">Keep It Navigable</b><br>'
-        '<span style="font-size:11.5px;color:var(--kin-muted)">Oakland University companion</span>'
-        '</div></div>', unsafe_allow_html=True)
+        '<div style="display:flex;align-items:center;gap:11px;margin-bottom:16px">'
+        '<div class="kin-mark" style="width:36px;height:36px;font-size:14px">KIN</div>'
+        '<div style="line-height:1.25">'
+        '<b style="font-size:12px;letter-spacing:.14em;text-transform:uppercase">'
+        'Kinetic<br>Intelligence Network</b></div></div>', unsafe_allow_html=True)
 
     names = [w["name"] for w in workspaces]
     current = active_workspace(workspaces)
@@ -209,10 +209,17 @@ with st.sidebar:
         store.update_workspace(workspace["id"], assistant_alias=alias_value)
         workspace["assistant_alias"] = alias_value
 
-    screen = st.radio("Go to", [
-        "Today", "Planner", "Michigan Weather", "Discover OU",
-        "Approvals & History", "Ask the assistant", "Settings & Trust",
-    ], label_visibility="collapsed")
+    # Labels are decorated for readability; the underlying values stay stable so
+    # routing and the interface tests are unaffected.
+    NAV_ICONS = {
+        "Today": "\U0001F3E0", "Planner": "\U0001F4C5",
+        "Michigan Weather": "\U0001F326️", "Discover OU": "\U0001F50D",
+        "Approvals & History": "✅", "Ask the assistant": "\U0001F4AC",
+        "Settings & Trust": "⚙️",
+    }
+    screen = st.radio("Go to", list(NAV_ICONS),
+                      format_func=lambda s: f"{NAV_ICONS[s]}  {s}",
+                      label_visibility="collapsed")
 
     status = provider_status()
     chip = "live" if status["configured"] else "blocked"
@@ -233,6 +240,10 @@ st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"), unsa
 if screen == "Today":
     greeting = preferences.get("preferred_name", "").strip()
     st.subheader(f"Good day{', ' + greeting if greeting else ''} — I'm {companion}")
+    st.markdown(
+        f'<div class="kin-hero"><div class="kin-date">'
+        f'{DEMO_TODAY.strftime("%A, %d %B %Y").replace(" 0", " ")} · '
+        f'{workspace["name"]} workspace</div></div>', unsafe_allow_html=True)
     horizon = DEMO_TODAY
     upcoming = [c for c in commitments
                 if c.get("status") not in ("completed", "canceled")
@@ -248,10 +259,10 @@ if screen == "Today":
 
     free = find_free_windows(commitments, horizon)
     st.markdown(theme.stat_tiles([
-        ("Upcoming", len(upcoming), "accent"),
-        ("Timetable clashes", len(conflicts), "danger" if conflicts else ""),
-        ("Weather impacts", len(impacts), "danger" if impacts else ""),
-        ("Open windows today", len(free), ""),
+        ("Upcoming", len(upcoming), "accent", "\U0001F4CC"),
+        ("Timetable clashes", len(conflicts), "danger" if conflicts else "ok", "⚡"),
+        ("Weather impacts", len(impacts), "danger" if impacts else "ok", "\U0001F326️"),
+        ("Open windows today", len(free), "", "\U0001F340"),
     ]), unsafe_allow_html=True)
 
     for c in conflicts:
@@ -265,26 +276,48 @@ if screen == "Today":
     left, right = st.columns([3, 2], gap="large")
 
     with left:
-        st.markdown("#### Next up")
+        st.markdown(theme.section("\U0001F5D3️", "Your timeline",
+                                  f"{len(upcoming)} ahead"), unsafe_allow_html=True)
         if not upcoming:
-            st.markdown(theme.note(
-                "Nothing scheduled ahead. Add a commitment in <strong>Planner</strong>, "
-                "or browse <strong>Discover OU</strong>."), unsafe_allow_html=True)
-        for c in sorted(upcoming, key=lambda e: e["start"])[:8]:
-            meta = event_type_meta(c.get("event_type"))
-            tags = ""
-            if c.get("end_is_estimated"):
-                tags += theme.badge("end estimated", "estimate")
-            if c.get("origin") == "sample":
-                tags += theme.badge("fictional sample", "neutral")
-            if any(i["event_id"] == c["id"] for i in impacts):
-                tags += theme.badge("weather impact", "danger")
-            st.markdown(theme.event_row(meta["icon"], c["title"],
-                                        f"{meta['label']} · {span(c['start'], c['end'])}",
-                                        badges=tags), unsafe_allow_html=True)
+            st.markdown(theme.empty(
+                "\U0001F334", "Nothing scheduled ahead",
+                "Add a commitment in the Planner, or find something to do in Discover OU."),
+                unsafe_allow_html=True)
+        else:
+            rows, last_day = [], ""
+            for c in sorted(upcoming, key=lambda e: e["start"])[:9]:
+                meta = event_type_meta(c.get("event_type"))
+                day = fmt(c["start"]).split(" · ")[0]
+                if day != last_day:
+                    rows.append(
+                        f'<div class="kin-tl"><div class="when"></div>'
+                        f'<div class="rail"></div><div class="item" '
+                        f'style="background:var(--kin-surface-2);border-style:dashed">'
+                        f'<div class="ttl" style="font-size:12px;letter-spacing:.08em;'
+                        f'text-transform:uppercase;color:var(--kin-muted)">{day}</div>'
+                        f'</div></div>')
+                    last_day = day
+                tags = ""
+                if c.get("end_is_estimated"):
+                    tags += theme.badge("end estimated", "estimate")
+                if c.get("origin") == "sample":
+                    tags += theme.badge("fictional", "neutral")
+                flagged = any(i["event_id"] == c["id"] for i in impacts)
+                if flagged:
+                    tags += theme.badge("weather impact", "danger")
+                rows.append(theme.timeline_item(
+                    fmt(c["start"], with_day=False), c["title"],
+                    f"{meta['label']} · until {fmt(c['end'], with_day=False)}"
+                    + (" · travel buffer applies" if c.get("requires_travel") else ""),
+                    c.get("event_type", "personal"),
+                    variant=("flagged" if flagged else
+                             "done" if c.get("status") == "completed" else ""),
+                    badges=tags))
+            st.markdown(theme.timeline(rows), unsafe_allow_html=True)
 
         if conflicts:
-            st.markdown("#### Clashes in your timetable")
+            st.markdown(theme.section("⚡", "Clashes in your timetable"),
+                        unsafe_allow_html=True)
             for c in conflicts:
                 st.markdown(theme.card(
                     f"{c['a']} overlaps {c['b']}",
@@ -292,7 +325,8 @@ if screen == "Today":
                      "KIN has not changed anything — open <b>Planner</b> to adjust one of them."],
                     variant="is-warn"), unsafe_allow_html=True)
 
-        st.markdown("#### Grounded briefing")
+        st.markdown(theme.section("✨", "Grounded briefing", "powered by Gemma 4"),
+                    unsafe_allow_html=True)
         st.caption("Built from your stored state. Gemma explains; it never invents events.")
         if st.button(f"Ask {companion} for today's briefing", type="primary"):
             payload = ai_payload(
@@ -315,7 +349,7 @@ if screen == "Today":
             st.caption(provider)
 
     with right:
-        st.markdown("#### Notifications")
+        st.markdown(theme.section("\U0001F514", "Notifications"), unsafe_allow_html=True)
         if in_quiet_hours(preferences):
             st.markdown(theme.badge("quiet hours active", "blocked"), unsafe_allow_html=True)
             st.caption("Low-importance notices are collapsed during your quiet hours.")
@@ -323,7 +357,8 @@ if screen == "Today":
         if in_quiet_hours(preferences):
             notifications = [n for n in notifications if n["importance"] == "high"]
         if not notifications:
-            st.markdown(theme.note("Nothing needs your attention right now."),
+            st.markdown(theme.empty("\U0001F389", "All clear",
+                                    "Nothing needs your attention right now."),
                         unsafe_allow_html=True)
         for n in notifications[:6]:
             variant = "is-alert" if n["importance"] == "high" else ""
@@ -337,7 +372,7 @@ if screen == "Today":
             "In-app notifications only. KIN has <strong>no</strong> push, SMS or email "
             "delivery, so nothing is sent to your phone."), unsafe_allow_html=True)
 
-        st.markdown("#### Official sources")
+        st.markdown(theme.section("\U0001F517", "Official sources"), unsafe_allow_html=True)
         st.link_button("OU campus closings", OU_CLOSING, use_container_width=True)
         st.link_button("National Weather Service", "https://www.weather.gov/dtx/",
                        use_container_width=True)
@@ -679,7 +714,7 @@ elif screen == "Michigan Weather":
             st.markdown(theme.badge("alerts unavailable", "danger"), unsafe_allow_html=True)
 
         if data["alerts_status"] == "retrieved" and data["alerts"]:
-            st.markdown("#### Official NWS alerts")
+            st.markdown(theme.section("📡", "Official NWS alerts"), unsafe_allow_html=True)
             for alert in data["alerts"]:
                 st.markdown(theme.card(
                     f"{alert.get('icon', '')} {alert['event']}",
@@ -702,7 +737,7 @@ elif screen == "Michigan Weather":
         if st.session_state.get("demo_sim"):
             sim = simulated_alert()
             alerts.append(sim)
-            st.markdown("#### Demonstration section")
+            st.markdown(theme.section("🧪", "Demonstration section", "not real weather data"), unsafe_allow_html=True)
             st.markdown(theme.simulation_banner(
                 "the warning below was generated by KIN to demonstrate the impact engine. "
                 "It did not come from the National Weather Service."), unsafe_allow_html=True)
@@ -712,7 +747,7 @@ elif screen == "Michigan Weather":
                 variant="is-sim", badges=theme.badge("simulated", "sim")), unsafe_allow_html=True)
 
         impacts = assess_alerts(commitments, alerts, buffer_minutes)
-        st.markdown("#### Ripple Engine — time-window impact")
+        st.markdown(theme.section("⚡", "Ripple Engine", "deterministic time-window impact"), unsafe_allow_html=True)
         st.caption("Deterministic overlap between each alert window and your commitment "
                    "window plus travel buffer. Computed in code, not by the model.")
         if impacts:
@@ -952,7 +987,7 @@ elif screen == "Approvals & History":
         st.markdown(theme.note("No action is waiting for your approval."),
                     unsafe_allow_html=True)
 
-    st.markdown("#### Action history")
+    st.markdown(theme.section("📜", "Action history"), unsafe_allow_html=True)
     history = store.list_actions(60)
     if not history:
         st.caption("Nothing has been approved or rejected yet.")
@@ -1105,7 +1140,7 @@ else:
                 st.rerun()
 
     with tab_trust:
-        st.markdown("#### Integration status")
+        st.markdown(theme.section("🔌", "Integration status"), unsafe_allow_html=True)
         st.caption("An honest list of what is connected and what is not.")
         for integration in INTEGRATION_STATUS:
             kind = {"Live and verified": "live", "Local and functional": "neutral",
@@ -1114,7 +1149,7 @@ else:
                                    badges=theme.badge(integration["status"], kind)),
                         unsafe_allow_html=True)
 
-        st.markdown("#### AI provider")
+        st.markdown(theme.section("🤖", "AI provider"), unsafe_allow_html=True)
         status = provider_status()
         st.markdown(theme.card(
             f"{status['provider']} · {status['model']}",
@@ -1125,7 +1160,7 @@ else:
                                "live" if status["configured"] else "blocked")),
             unsafe_allow_html=True)
 
-        st.markdown("#### What KIN does not do")
+        st.markdown(theme.section("🛡️", "What KIN does not do"), unsafe_allow_html=True)
         st.markdown(theme.note(
             "No Oakland University login, Moodle or MySAIL access. No push, SMS or email "
             "delivery. No ticket purchases. No road-safety or travel-time prediction. "
@@ -1133,7 +1168,7 @@ else:
             "Guest mode means no account — not guaranteed anonymity, because a hosted "
             "deployment still processes data server-side."), unsafe_allow_html=True)
 
-        st.markdown("#### Official sources KIN links to")
+        st.markdown(theme.section("🔗", "Official sources KIN links to"), unsafe_allow_html=True)
         for s in OU_SOURCES[:4]:
             st.link_button(s["name"], s["url"])
 

@@ -1,4 +1,4 @@
-# KIN — Keep It Navigable
+# KIN — Kinetic Intelligence Network
 
 **Hacktoberfest Hack Day Rochester x GrizzHacks — 30 October 2026**
 

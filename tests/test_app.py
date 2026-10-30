@@ -216,6 +216,54 @@ def test_erase_button_is_disabled_until_confirmed(app):
     assert erase[0].disabled, "destructive action must require explicit confirmation"
 
 
+# ----------------------------------------------------- branding and visuals
+def test_masthead_shows_the_full_brand_name(app):
+    rendered = " ".join(m.value for m in app.markdown)
+    assert "Kinetic Intelligence Network" in rendered
+    assert "Keep It Navigable" not in rendered
+
+
+def test_sidebar_navigation_covers_every_screen(app):
+    options = list(app.sidebar.radio[0].options)
+    for screen in SCREENS:
+        assert any(screen in option for option in options), f"{screen} missing from nav"
+
+
+def test_today_renders_a_timeline_with_type_colours(app):
+    rendered = " ".join(m.value for m in app.markdown)
+    assert "kin-timeline" in rendered
+    assert "kin-tl" in rendered
+    # The seeded exam should carry its event-type colour on the timeline dot.
+    from kin_theme import TYPE_COLORS
+    assert TYPE_COLORS["exam"] in rendered
+
+
+def test_empty_state_is_friendly_in_a_brand_new_workspace(app):
+    """A newly created workspace has no commitments, so it must guide the user.
+
+    Deleting every commitment would not test this: the bootstrap deliberately
+    reseeds the fictional demo timetable when the whole store is empty.
+    """
+    from kin_models import make_workspace
+    kin_store.add_workspace(make_workspace("Empty Space", "Gaming"))
+    app.run()
+    app.sidebar.selectbox[0].set_value("Empty Space").run()
+    assert not app.exception
+    rendered = " ".join(m.value for m in app.markdown)
+    assert "kin-empty" in rendered
+    assert "Nothing scheduled ahead" in rendered
+
+
+def test_theme_escapes_user_supplied_text():
+    """Titles are rendered as HTML, so they must be escaped."""
+    from kin_theme import card, event_row, timeline_item
+    nasty = '<img src=x onerror="alert(1)">'
+    for rendered in (card(nasty, []), event_row("x", nasty, "m"),
+                     timeline_item("9 AM", nasty, "m", "exam")):
+        assert "<img" not in rendered
+        assert "&lt;img" in rendered
+
+
 # ------------------------------------- every stored preference is consumed
 def test_no_preference_is_stored_without_being_used():
     """Guards against decorative settings: every default must be read somewhere.

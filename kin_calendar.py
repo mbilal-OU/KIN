@@ -17,7 +17,7 @@ from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from kin_models import MICHIGAN, DEFAULT_EVENT_TYPE, make_commitment
 
-PRODID = "-//KIN Keep It Navigable//Hacktoberfest 2026//EN"
+PRODID = "-//KIN Kinetic Intelligence Network//Hacktoberfest 2026//EN"
 
 
 # ------------------------------------------------------------------ export
