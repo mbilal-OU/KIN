@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/kin-official-logo.webp" alt="KIN — Kinetic Intelligence Network. Life changes. KIN moves with you." width="520">
+
 # KIN
 ### Kinetic Intelligence Network
 
@@ -192,7 +194,7 @@ Built for **Hacktoberfest Hack Day Rochester × GrizzHacks, October 30, 2026**.
 
 KIN uses an original black-and-gold visual identity inspired by the university setting, without claiming Oakland University endorsement or using its official athletics marks as the application's own branding.
 
-The selected KIN logo is a metallic-gold intertwined symbol with a gold **KIN** wordmark, a dotted **I**, and the tagline **“Life changes. KIN moves with you.”** The final image is not shown here until its original asset has been committed to the repository.
+The selected KIN logo is a metallic-gold intertwined symbol with a gold **KIN** wordmark, a dotted **I**, and the tagline **“Life changes. KIN moves with you.”** The repository includes optimized, web-ready copies of the team-selected [full logo](assets/kin-official-logo.webp) and [app icon](assets/kin-app-icon.webp). The original uploaded PNGs remain the high-resolution masters.
 
 ### License
 
