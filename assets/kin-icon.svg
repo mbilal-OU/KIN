@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<title id="title">KIN connected-path icon</title>
+<desc id="desc">Original gold K-shaped network paths with circular connection points on a dark rounded-square background.</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E1C58C"/><stop offset="1" stop-color="#BC945B"/></linearGradient></defs>
+<rect width="128" height="128" rx="28" fill="#141414"/>
+<g fill="none" stroke="url(#g)" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M32 40V98"/>
+<path d="M34 73 83 29"/>
+<path d="M54 56 91 98"/>
+<path d="M54 56 98 56"/>
+</g>
+<g fill="#E1C58C"><circle cx="32" cy="30" r="8"/><circle cx="89" cy="24" r="8"/><circle cx="103" cy="56" r="8"/><circle cx="97" cy="104" r="8"/></g>
+</svg>
