@@ -1,227 +1,207 @@
 <div align="center">
 
-# KIN — Kinetic Intelligence Network
+# KIN
+### Kinetic Intelligence Network
 
 **Life changes. KIN moves with you.**
 
-*Your AI companion for learning, work, and everyday life.*
+An open-weight AI companion for the commitments, disruptions, and opportunities that shape your day.
+
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Gemma 4](https://img.shields.io/badge/AI-Gemma%204-BC945B)](https://ai.google.dev/gemma)
+[![NWS](https://img.shields.io/badge/Weather-NWS%20API-1D637B)](https://www.weather.gov/documentation/services-web-api)
+[![MIT License](https://img.shields.io/badge/License-MIT-000000.svg)](LICENSE)
+
+[**Get started**](#quick-start) · [**See what it does**](#the-experience) · [**How it works**](#how-kin-works) · [**Project documentation**](#documentation)
 
 </div>
 
-**Hacktoberfest Hack Day Rochester x GrizzHacks — 30 October 2026**
-
-A privacy-first student life companion for Oakland University. KIN connects a
-fictional student's timetable with **live National Weather Service data** and
-**real, source-linked OU athletics events**, detects time conflicts with
-deterministic rules, and asks permission before it changes anything.
-
-**Gemma 4** does the language work — reading free text into a structured
-proposal, and explaining what the rules found. It never decides whether two
-events clash, and it never decides whether a class is canceled.
-
-> KIN is a student project. It is **not** an official Oakland University
-> service and **not** an emergency notification system.
-
 ---
 
-## Final brand identity
+## A more connected day
 
-The official **KIN project identity** selected by the founders is the **metallic-gold intertwined symbol** beside the gold **KIN** wordmark (with a dotted **I**) on black, the white name **Kinetic Intelligence Network**, and the tagline **“Life changes. KIN moves with you.”**
+A student commuting to Oakland University has an exam at 9:00 a.m. A Michigan weather alert may affect their plans. Their calendar knows the exam time; a weather app knows about the alert; the university publishes its own updates. **None of those sources, on its own, explains how the pieces fit together.**
 
-**Primary logo asset:** `assets/kin-official-logo.png` (team-approved artwork; awaiting binary upload). Until the original image has been committed, keep the existing text-based KIN header rather than substitute an unapproved logo. The app and pitch website should both use the exact same uploaded asset once available.
+KIN brings selected commitments and external information into one place. It identifies relevant timing conflicts, explains what is known and what is uncertain, and offers the next useful action—**without making decisions for the user**.
 
-**Colors:** black, warm metallic gold and white; Oakland University-inspired, but independently branded. **KIN is not affiliated with or endorsed by Oakland University.**
+The first edition focuses on Oakland University students and southeastern Michigan. The underlying planning model can also represent work, family, and personal commitments.
 
----
+> **Core principle:** Rules decide. The model explains. The user approves.
 
-## What actually works
+## The experience
 
-Verified on this machine, 30 October 2026:
+| Plan your day | Prepare for changes | Make room for life |
+| :--- | :--- | :--- |
+| Add classes, exams, shifts, meetings and personal commitments. Gemma 4 can interpret a natural-language entry into a proposed calendar item. | Check National Weather Service information against your timetable and a user-defined planning buffer. See relevant impacts with source details. | Discover source-linked Oakland University activities and check whether an event fits your selected timetable before approving an addition. |
 
-| Capability | Status | Evidence |
-|---|---|---|
-| Live NWS hourly forecast + active alerts | **Working** | `tests/live_smoke.py` — 12 periods, office DTX |
-| Gemma 4 free-text → validated event proposal | **Working** | `gemma-4-26b-a4b-it` via Gemini API |
-| Gemma 4 grounded daily briefing | **Working** | Live call, no closure claim |
-| Deterministic conflict / weather-impact engine | **Working** | 129 automated tests |
-| Approval-gated calendar writes with verification | **Working** | Read-back confirmed before success is shown |
-| Local SQLite persistence, export and erase | **Working** | Survives restart; one-click erase |
-| Workspaces, assistant naming, guest mode | **Working** | Per-workspace alias, blank allowed |
-| .ics import (with preview) and export | **Working** | TZID, UTC, all-day, duplicates, RRULE flagged |
-| What-if simulator | **Working** | Never mutates the real timetable |
-| Moodle / MySAIL sync, OAuth calendars, push/SMS | **Not built** | Needs authorization KIN does not have |
+### A typical KIN journey
 
-The **Settings & Trust** screen lists this honestly inside the app.
+1. **Plan.** Enter a fictional commitment, such as “Biology study meeting, Friday at 5 p.m.” Gemma 4 proposes structured event details; KIN validates the times before the user accepts them.
+2. **Check.** Retrieve the NWS forecast and alerts for an approximate Michigan location. KIN's scheduling rules compare alert windows with selected commitments.
+3. **Understand.** Receive a short explanation of potential conflicts, with official sources and uncertainty clearly separated. A weather alert **does not** establish a university closure.
+4. **Discover.** Explore an officially sourced OU athletics event. The app checks it against the current timetable and flags any estimated end time.
+5. **Approve.** Review the proposed calendar change. KIN writes it to the local store only after approval and verifies that it was saved.
 
----
+The included winter-warning demonstration is **explicitly simulated**. It is not a real NWS warning.
+
+## What is implemented
+
+The repository contains a Streamlit application and a local, single-user proof of concept. Current functionality includes:
+
+| Area | Functionality |
+| :--- | :--- |
+| **Planning** | Manual commitment management, event categories, conflict detection, free-time windows and a what-if simulator |
+| **AI assistance** | Gemma 4 event extraction, grounded daily briefings and Q&A over supplied context; distinctly labeled non-AI fallback when unavailable |
+| **Michigan weather** | NWS hourly forecast and active alerts, request timestamps, location checks and explicit unavailable states |
+| **Campus discovery** | Curated, source-linked OU athletics events, schedule compatibility checks and approval-based local additions |
+| **Personalization** | Named workspaces, assistant nickname, planning buffers and user preferences |
+| **Calendars and data** | iCalendar (`.ics`) preview/import/export, local SQLite storage, JSON export and full local erasure |
+| **Trust controls** | Source provenance, simulation labels, duplicate prevention, action history and approval verification |
+
+**Not implemented:** MySAIL/Moodle account access, authenticated multi-user accounts, real calendar OAuth sync, road-safety predictions, or push/SMS/email notifications.
+
+See [feature status](docs/FEATURES.md) for the test evidence and known gaps behind each item.
 
 ## Quick start
 
-```powershell
-# Windows PowerShell
-cd path\to\KIN_Hacktoberfest_Starter
-py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-copy .env.example .env      # then edit .env and add your own key
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe -m streamlit run app.py
+**Requirements:** Python 3.11 or later; internet access for NWS and hosted Gemma inference. No university account is required.
+
+```bash
+git clone https://github.com/mbilal-OU/KIN.git
+cd KIN
+
+python -m venv .venv
 ```
+
+Activate your virtual environment:
+
+| macOS / Linux | Windows PowerShell |
+| :--- | :--- |
+| `source .venv/bin/activate` | `.\.venv\Scripts\Activate.ps1` |
+
+Install dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+Copy the example configuration and add your own API key:
 
 ```bash
 # macOS / Linux
-cd /path/to/KIN_Hacktoberfest_Starter
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
-cp .env.example .env        # then edit .env and add your own key
-.venv/bin/python -m pytest -q
-.venv/bin/python -m streamlit run app.py
+cp .env.example .env
+
+# Windows PowerShell
+# Copy-Item .env.example .env
 ```
 
-Then open <http://localhost:8501>.
+Set the following entries in `.env`:
 
-### Configuring the model
-
-Put your own key in `.env` (never in a chat, screenshot, or commit):
-
-```ini
+```dotenv
 KIN_AI_PROVIDER=gemini
-GEMINI_API_KEY=your_own_key_from_aistudio_google_com
+GEMINI_API_KEY=your_private_key
 KIN_GEMMA_MODEL=gemma-4-26b-a4b-it
 ```
 
-**Fully local alternative** — nothing leaves your machine:
+Obtain an API key from [Google AI Studio](https://aistudio.google.com/apikey). **Never commit your `.env` file or use private student information for hosted demo prompts.**
 
-```ini
-KIN_AI_PROVIDER=ollama
-KIN_OLLAMA_MODEL=gemma4:e2b
-```
-
-(`ollama pull gemma4:e2b` first. Check Gemma prize eligibility for the local
-route with the Rochester organizers if that matters to you.)
-
-KIN runs without any key — the AI panels show a clearly labeled deterministic
-fallback instead of pretending the model answered.
-
----
-
-## Tests
+Start the app:
 
 ```bash
-python -m pytest -q          # 129 tests, no network, no API quota
-python tests/live_smoke.py   # separate, manual: real NWS + real Gemma
+python -m streamlit run app.py
 ```
 
-The automated suite mocks every external call, so it is safe to run in CI and
-cannot spend API quota. `live_smoke.py` is deliberately not named `test_*.py`.
+Open **http://localhost:8501**. The application can run without an AI key, but model features will show a clearly identified deterministic fallback rather than a Gemma response.
 
----
+### Run Gemma locally instead
 
-## How it is put together
+If your machine has adequate resources, use [Ollama](https://ollama.com/) and download the supported model:
 
-```text
-Fictional student text ──> Gemma 4 extraction ──> strict JSON validation ──┐
-                                                                           │
-Stored timetable ──────────────────────────────────────────────────────────┤
-                                                                           ├──> KIN rules
-Live NWS forecast / alerts ──> source adapter (+ city, timestamp, status) ──┤     ├─ conflict / impact
-                                                                           │     └─ opportunity fit
-Curated OU events ──────────> provenance + estimated-end labels ───────────┘           │
-                                                                                       v
-                                                            Gemma 4 explains the structured result
-                                                                                       │
-                                                                 Proposal — no side effect yet
-                                                                                       │
-                                                                      User APPROVE / REJECT
-                                                                                       │
-                                                          Local write ──> read back ──> VERIFIED
+```bash
+ollama pull gemma4:e2b
 ```
 
-Four trust boundaries:
+Then select `KIN_AI_PROVIDER=ollama` in your local `.env` and configure `KIN_OLLAMA_MODEL=gemma4:e2b`. Local-model download size and hardware requirements vary.
 
-1. **Untrusted text → validated data.** Model output is a *proposal*. It must
-   pass `validate_event_proposal`, including that the UTC offset is the one
-   America/Detroit genuinely uses on that date.
-2. **External data carries provenance.** Every weather response records the city,
-   coordinates, retrieval time and per-endpoint status.
-3. **AI output is an explanation, not a command.** Gemma cannot call a tool,
-   write to the calendar, or authorize anything.
-4. **No state change without a click.** Approvals go
-   `PROPOSED → APPROVED → EXECUTING → VERIFIED`, and `VERIFIED` is only set
-   after reading the record back out of the database.
+## How KIN works
 
-| Module | Responsibility |
-|---|---|
-| `kin_core.py` | Deterministic rules: overlap, buffers, impacts, validation, simulator |
-| `kin_sources.py` | NWS client, OU source registry, curated event loading |
-| `kin_ai.py` | Gemma calls, extraction, briefing, Q&A, labeled fallbacks |
-| `kin_store.py` | Local SQLite persistence, export, erase |
-| `kin_models.py` | Shared types, event taxonomy, record factories |
-| `kin_calendar.py` | iCalendar import/export (standard library only) |
-| `kin_theme.py` | Oakland University visual identity |
-| `app.py` | Streamlit screens and orchestration |
+```mermaid
+flowchart TD
+    U["Student's selected commitments"] --> V["Validate & normalize"]
+    M["Gemma 4: natural-language extraction"] --> V
+    W["NWS weather & alerts"] --> S["Source-aware adapters"]
+    O["Curated OU events"] --> S
+    V --> R["Deterministic Ripple Engine"]
+    S --> R
+    R --> E["Structured impact & opportunity findings"]
+    E --> G["Gemma 4: grounded explanation"]
+    G --> P{"User approves?"}
+    P -->|No| X["No change"]
+    P -->|Yes| C["Write local commitment"]
+    C --> Q["Read-back verification & action history"]
+```
 
-More detail in [`docs/`](docs/): architecture, feature status, integrations,
-security, testing, roadmap.
+**Gemma 4 handles language.** It converts free text into candidate event details and explains findings drawn from the supplied state. **Python handles the rules:** date validation, Michigan time-zone offsets, time-window overlaps, buffers, source status and action permissions.
 
----
+The model has no direct calendar write tools. Proposals are validated, shown to the user and applied only with explicit approval.
 
-## The two demonstration loops
+For the implementation details, see [architecture](docs/ARCHITECTURE.md) and [integrations](docs/INTEGRATIONS.md).
 
-**A — Weather and an exam.** The sample timetable has a fictional 9:00 AM exam
-on 31 October. Turn on the clearly marked SIMULATED winter warning (06:30–12:00)
-and KIN finds the overlap with the exam *plus your travel buffer*, shows which
-rule matched, and says plainly that no university cancellation is confirmed.
-The simulated alert is rendered in its own dashed, purple-bordered section and
-stays flagged `is_simulation` everywhere downstream, including in the AI prompt.
+## Testing
 
-**B — A real OU event.** Discover OU shows Oakland Women's Volleyball vs
-Milwaukee (Volloween Weekend) with its official Athletics source URL, the date
-it was verified, and an explicit "end time estimated" badge. KIN checks it
-against your timetable with your chosen buffer, you press *Propose*, and nothing
-is stored until you press *Approve* in the Approval Center. The action log then
-shows `VERIFIED` only because KIN re-read the row it wrote.
+```bash
+# Offline automated tests; external API calls are mocked
+python -m pytest -q
 
----
+# Optional manual integration check; uses real NWS and Gemma API access
+python tests/live_smoke.py
+```
 
-## Honest limitations
+The repository includes unit tests for scheduling, validation, storage and AI boundaries, plus Streamlit application tests. The separate live smoke test exercises real provider connections and may consume API quota.
 
-- **End times for sports events are planning estimates.** Only start times are
-  from an official source.
-- **Weather is one approximate coordinate**, not your actual route. KIN makes no
-  road-safety or travel-time claim.
-- **An API failure says "unavailable"**, never "no alerts". A zero-alert result
-  is reported as "0 returned at retrieval time", not as a safety guarantee.
-- **Class status is never inferred from weather.** Only the
-  [official OU closings page](https://www.oakland.edu/police/emergency-management/campus-closings/)
-  can confirm a closure, and KIN only links to it.
-- **Guest mode means no account, not anonymity.** Data is stored in a local
-  SQLite file; a hosted deployment would still process data server-side.
-- **Storage is local and single-user.** It is not isolation, encryption, or
-  authentication. Multi-user use would need real identities first.
-- **No notifications leave the app.** There is no push, SMS or email delivery.
-- **No compliance claims.** Not FERPA, SOC 2 or HIPAA certified; not affiliated
-  with or endorsed by Oakland University.
-- **Recurring .ics events** import as their first occurrence only, and say so.
+See [test coverage and limitations](docs/TESTING.md). A passing offline suite does not by itself confirm that a publicly hosted demo is reachable or that a live model call will succeed.
 
----
+## Privacy, accuracy and scope
 
-## Sources
+KIN is an **independent Oakland University-inspired hackathon project**, not an official university application or emergency notification service.
 
-- NWS API: <https://www.weather.gov/documentation/services-web-api>
-- NWS alerts: <https://www.weather.gov/documentation/services-web-alerts>
-- OU campus closings: <https://www.oakland.edu/police/emergency-management/campus-closings/>
-- OU registrar important dates: <https://www.oakland.edu/registrar/important-dates/>
-- OU events calendar: <https://calendar.oakland.edu/>
-- OU athletics: <https://goldengrizzlies.com/>
-- Volleyball Oct 30: <https://goldengrizzlies.com/news/2026/10/29/womens-volleyball-volleyball-preps-for-series-with-milwaukee.aspx>
-- Volleyball Oct 31: <https://goldengrizzlies.com/news/2026/7/8/womens-volleyball-golden-grizzlies-release-2026-volleyball-promotions-schedule.aspx>
-- Gemma on the Gemini API: <https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api>
+- **Source-aware, not source-omniscient.** Weather information comes from NWS. KIN links to the [official OU campus closings page](https://www.oakland.edu/police/emergency-management/campus-closings/) but does not independently establish an exam or class cancellation.
+- **A planning buffer is not a travel-time estimate.** KIN does not assess road safety or guarantee arrival.
+- **Simulations stay simulations.** Fictional severe-weather examples are labeled and kept separate from live alerts. If an API is unavailable, KIN says so.
+- **Local storage is not multi-user security.** The demo uses SQLite without authentication, encryption at rest or per-user isolation. It is suitable for controlled **synthetic-data demonstrations**, not for processing real student records in a public deployment.
+- **Guest mode is not anonymity.** Local data can be inspected, exported or erased. Sensitive information should not be added to a shared demo.
+- **No external actions are sent.** KIN does not send emails, texts, push alerts or university messages.
 
-Event records must be rechecked if used after 30–31 October 2026.
+The [security and privacy notes](docs/SECURITY.md) include a development-key exposure warning. **Any previously exposed API key must be revoked and replaced before deployment.**
 
----
+## Documentation
 
-## License
+| Guide | Contents |
+| :--- | :--- |
+| [Architecture](docs/ARCHITECTURE.md) | Components, agent loop and trust boundaries |
+| [Feature status](docs/FEATURES.md) | Implemented capabilities, verification and gaps |
+| [Integrations](docs/INTEGRATIONS.md) | Available, planned and blocked external services |
+| [Testing](docs/TESTING.md) | Automated and manual validation |
+| [Security](docs/SECURITY.md) | Data handling, credentials and deployment limitations |
+| [Roadmap](docs/ROADMAP.md) | Development beyond the hackathon |
 
-Code is MIT (see [`LICENSE`](LICENSE)). Third-party models and data keep their
-own terms. Oakland University names and marks belong to the university.
+## Project context
+
+Built for **Hacktoberfest Hack Day Rochester × GrizzHacks, October 30, 2026**.
+
+KIN uses an original black-and-gold visual identity inspired by the university setting, without claiming Oakland University endorsement or using its official athletics marks as the application's own branding.
+
+The selected KIN logo is a metallic-gold intertwined symbol with a gold **KIN** wordmark, a dotted **I**, and the tagline **“Life changes. KIN moves with you.”** The final image is not shown here until its original asset has been committed to the repository.
+
+### License
+
+Released under the [MIT License](LICENSE). Gemma model weights, external data and third-party services remain subject to their respective terms.
+
+<div align="center">
+
+**KIN — Kinetic Intelligence Network**
+
+*Life changes. KIN moves with you.*
+
+</div>
