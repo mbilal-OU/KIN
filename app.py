@@ -7,6 +7,7 @@ provenance by kin_sources. The language model explains; it never decides.
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, time, timedelta
 
 import streamlit as st
@@ -38,6 +39,9 @@ load_dotenv()
 OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closings/"
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
 DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
+# Safe public-hackathon default: disable private calendar uploads on an unprotected server.
+# For isolated local development only, set KIN_PUBLIC_DEMO=0 to enable .ics uploads.
+PUBLIC_DEMO = os.getenv("KIN_PUBLIC_DEMO", "1").strip() != "0"
 
 st.set_page_config(page_title="KIN | Kinetic Intelligence Network", page_icon="\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
@@ -238,7 +242,10 @@ with st.sidebar:
         theme.badge("AI " + ("ready" if status["configured"] else "not configured"), chip)
         + f'<div style="font-size:11.5px;color:var(--kin-muted);margin-top:2px">'
           f'{status["provider"]} · {status["model"]}</div>', unsafe_allow_html=True)
-    st.caption("Guest mode. No OU login. Fictional data only.")
+    st.caption("Guest mode · Fictional data only · Independent student project")
+    if PUBLIC_DEMO:
+        st.warning("PUBLIC DEMO: This instance is not private or multi-user isolated. "
+                   "Use fictional data only; calendar uploads are disabled.")
 
 commitments = store.list_commitments(workspace["id"])
 companion = display_assistant(workspace, preferences)
@@ -587,7 +594,10 @@ elif screen == "Planner":
         st.divider()
         st.markdown("**Import** an .ics file. KIN shows a preview and imports nothing "
                     "until you approve it.")
-        uploaded = st.file_uploader("Calendar file", type=["ics"])
+        if PUBLIC_DEMO:
+            st.info("Private calendar uploads are disabled in public demo mode. "
+                    "For a personal local instance, set KIN_PUBLIC_DEMO=0.")
+        uploaded = st.file_uploader("Calendar file", type=["ics"], disabled=PUBLIC_DEMO)
         import_type = st.selectbox("Import everything as", list(EVENT_TYPES),
                                    format_func=lambda k: EVENT_TYPES[k]["label"],
                                    index=list(EVENT_TYPES).index("class"))
