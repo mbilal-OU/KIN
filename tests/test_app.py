@@ -233,6 +233,81 @@ def test_official_logo_is_rendered_with_accessible_alt_text(app):
     assert 'alt="Kinetic Intelligence Network' in rendered
 
 
+def test_css_never_overrides_the_material_icon_font(app):
+    """A broad font rule makes Streamlit render ligature NAMES as text.
+
+    The symptom was 'keyboard_double_arrow_left' appearing above the sidebar
+    instead of the collapse chevron.
+    """
+    import kin_theme
+    sheet = kin_theme.css("Auto")
+    assert '[class*="st-"]' not in sheet, "selector is broad enough to hit icon spans"
+    assert '[data-testid="stIconMaterial"]' in sheet
+    assert "Material Symbols Rounded" in sheet
+
+
+@pytest.mark.parametrize("mode", ["Auto", "Light", "Dark"])
+def test_every_theme_mode_produces_a_usable_stylesheet(mode):
+    import kin_theme
+    sheet = kin_theme.css(mode)
+    assert sheet.startswith("\n<style>") or sheet.lstrip().startswith("<style>")
+    assert "__KIN_DARK__" not in sheet, "placeholder was not substituted"
+    assert "--kin-gold" in sheet
+    assert sheet.rstrip().endswith("</style>")
+
+
+def test_dark_mode_is_forced_without_a_media_query():
+    import kin_theme
+    dark = kin_theme.css("Dark")
+    assert "@media (prefers-color-scheme: dark)" not in dark
+    assert "#0E1014" in dark, "dark background token missing"
+    # Streamlit's own chrome must be restyled too, or widgets stay light.
+    assert 'section[data-testid="stSidebar"]' in dark
+    assert ".stApp" in dark
+
+
+def test_light_mode_ignores_the_system_preference():
+    import kin_theme
+    light = kin_theme.css("Light")
+    assert "@media (prefers-color-scheme: dark)" not in light
+    assert "#0E1014" not in light
+
+
+def test_auto_mode_follows_the_system():
+    import kin_theme
+    auto = kin_theme.css("Auto")
+    assert "@media (prefers-color-scheme: dark)" in auto
+    assert "#0E1014" in auto
+
+
+def test_appearance_control_switches_the_palette(app):
+    auto = " ".join(m.value for m in app.markdown)
+    assert "@media (prefers-color-scheme: dark)" in auto
+    app.sidebar.selectbox[1].set_value("Dark").run()
+    assert not app.exception
+    dark = " ".join(m.value for m in app.markdown)
+    assert "@media (prefers-color-scheme: dark)" not in dark
+    assert "#0E1014" in dark
+    app.sidebar.selectbox[1].set_value("Light").run()
+    light = " ".join(m.value for m in app.markdown)
+    assert "#0E1014" not in light
+
+
+def test_appearance_choice_is_persisted(app):
+    app.sidebar.selectbox[1].set_value("Dark").run()
+    assert kin_store.get_preferences()["theme"] == "Dark"
+    app.sidebar.selectbox[1].set_value("Light").run()
+    assert kin_store.get_preferences()["theme"] == "Light"
+
+
+def test_appearance_control_does_not_disturb_other_sidebar_widgets(app):
+    """The workspace picker must stay selectbox[0] and nav must stay radio[0]."""
+    app.sidebar.selectbox[1].set_value("Dark").run()
+    assert not app.exception
+    assert "Workspace" in app.sidebar.selectbox[0].label
+    assert any("Today" in option for option in app.sidebar.radio[0].options)
+
+
 def test_tagline_appears_in_the_brand_lockup(app):
     rendered = " ".join(m.value for m in app.markdown)
     assert "moves with you" in rendered

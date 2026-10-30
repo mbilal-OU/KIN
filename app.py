@@ -43,7 +43,6 @@ DEMO_TODAY = datetime(2026, 10, 30, tzinfo=MICHIGAN)
 st.set_page_config(page_title="KIN | Kinetic Intelligence Network",
                    page_icon=theme.icon_image() or "\U0001F9ED",
                    layout="wide", initial_sidebar_state="expanded")
-st.markdown(theme.CSS, unsafe_allow_html=True)
 
 
 # ---------------------------------------------------------------- bootstrap
@@ -66,6 +65,16 @@ def _bootstrap() -> None:
 
 
 _bootstrap()
+
+# The stylesheet must be written before anything else renders, so the chosen
+# appearance is read from session_state (set by the sidebar control via its
+# key) rather than from the widget itself. Reading the widget's return value
+# would apply the new palette one rerun late.
+_saved_theme = store.get_preferences().get("theme", "Auto")
+if st.session_state.get("theme_mode") not in theme.THEME_MODES:
+    st.session_state["theme_mode"] = (_saved_theme if _saved_theme in theme.THEME_MODES
+                                      else "Auto")
+st.markdown(theme.css(st.session_state["theme_mode"]), unsafe_allow_html=True)
 
 for key, default in (("pending_action", None), ("weather", None), ("extracted", None),
                      ("extract_provider", ""), ("ics_preview", None), ("sim_result", None),
@@ -217,6 +226,13 @@ with st.sidebar:
     screen = st.radio("Go to", list(NAV_ICONS),
                       format_func=lambda s: f"{NAV_ICONS[s]}  {s}",
                       label_visibility="collapsed")
+
+    st.divider()
+    appearance = st.selectbox(
+        "Appearance", theme.THEME_MODES, key="theme_mode",
+        help="Auto follows your operating system. Light and Dark override it.")
+    if appearance != preferences.get("theme"):
+        store.set_preference("theme", appearance)
 
     status = provider_status()
     chip = "live" if status["configured"] else "blocked"

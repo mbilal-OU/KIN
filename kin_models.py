@@ -183,4 +183,5 @@ DEFAULT_PREFERENCES: dict[str, Any] = {
     "quiet_hours_start": 22,       # collapses low-importance notices
     "quiet_hours_end": 7,
     "share_schedule_with_ai": True,
+    "theme": "Auto",               # Auto | Light | Dark, applied by kin_theme.css
 }

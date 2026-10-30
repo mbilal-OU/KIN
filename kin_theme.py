@@ -85,11 +85,96 @@ TYPE_COLORS: dict[str, str] = {
     "recreation": "#F6B61C", "gaming": "#6C4DD3", "personal": "#7A8290",
 }
 
-CSS = """
+THEME_MODES = ("Auto", "Light", "Dark")
+
+# Dark palette. Shared by the automatic (media query) and forced paths so the
+# two can never drift apart.
+_DARK_TOKENS = """
+  --kin-gold: #FFC83D;
+  --kin-gold-soft: #2B2516;
+  --kin-gold-deep: #FFDA86;
+  --kin-ink: #F4F5F7;
+  --kin-text: #E9EBEF;
+  --kin-muted: #A6ADBA;
+  --kin-faint: #878E9C;
+  --kin-bg: #0E1014;
+  --kin-surface: #15171C;
+  --kin-surface-2: #1C1F26;
+  --kin-surface-3: #23272F;
+  --kin-border: #2E333D;
+  --kin-danger: #F3B7B3;
+  --kin-danger-soft: #3A211F;
+  --kin-warn: #FFD392;
+  --kin-warn-soft: #332814;
+  --kin-ok: #9DE4B6;
+  --kin-ok-soft: #14301F;
+  --kin-sim: #C8B4F7;
+  --kin-sim-soft: #241D38;
+  --kin-info-soft: #1A2131;
+  --kin-shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 18px rgba(0,0,0,.25);
+"""
+
+# Streamlit's own chrome is themed by .streamlit/config.toml, which is fixed at
+# startup and cannot be changed from Python at runtime. To honour a user's dark
+# choice the framework surfaces have to be restyled here, otherwise the widgets
+# stay light while KIN's own cards go dark.
+_DARK_CHROME = """
+  .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {
+    background: var(--kin-bg) !important; color: var(--kin-text);
+  }
+  [data-testid="stHeader"] { background: transparent !important; }
+  section[data-testid="stSidebar"] { background: var(--kin-surface-2) !important; }
+  h1, h2, h3, h4, h5, h6, p, li, label, .stMarkdown, .stCaption,
+  [data-testid="stWidgetLabel"], [data-testid="stMarkdownContainer"] {
+    color: var(--kin-text) !important;
+  }
+  small, [data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] * {
+    color: var(--kin-muted) !important;
+  }
+  input, textarea, [data-baseweb="input"], [data-baseweb="base-input"],
+  [data-baseweb="select"] > div, [data-baseweb="textarea"] {
+    background: var(--kin-surface) !important;
+    color: var(--kin-text) !important;
+    border-color: var(--kin-border) !important;
+  }
+  [data-baseweb="popover"] [role="listbox"], [data-baseweb="menu"] {
+    background: var(--kin-surface) !important; color: var(--kin-text) !important;
+  }
+  [data-baseweb="menu"] li:hover { background: var(--kin-surface-3) !important; }
+  [data-testid="stVerticalBlockBorderWrapper"] > div,
+  [data-testid="stExpander"] details {
+    border-color: var(--kin-border) !important;
+  }
+  [data-testid="stExpander"] details, [data-testid="stExpander"] summary {
+    background: var(--kin-surface) !important; color: var(--kin-text) !important;
+  }
+  .stTabs [data-baseweb="tab"] { color: var(--kin-muted) !important; }
+  .stTabs [aria-selected="true"] { color: var(--kin-gold) !important; }
+  .stButton > button, .stDownloadButton > button, .stLinkButton > a {
+    background: var(--kin-surface) !important; color: var(--kin-text) !important;
+    border-color: var(--kin-border) !important;
+  }
+  .stButton > button[kind="primary"] {
+    background: var(--kin-gold) !important; color: #0B0B0C !important;
+    border-color: var(--kin-gold) !important;
+  }
+  [data-testid="stAlert"] { background: var(--kin-surface-2) !important;
+    color: var(--kin-text) !important; border: 1px solid var(--kin-border) !important; }
+  [data-testid="stAlert"] * { color: var(--kin-text) !important; }
+  [data-testid="stMetricValue"], [data-testid="stMetricLabel"] {
+    color: var(--kin-text) !important;
+  }
+  hr, [data-testid="stDivider"] { border-color: var(--kin-border) !important; }
+  code { background: var(--kin-surface-3) !important; color: var(--kin-gold-deep) !important; }
+  [data-testid="stJson"], .stJson { background: var(--kin-surface) !important; }
+"""
+
+_BASE = """
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
+  --kin-bg: #FFFFFF;
   --kin-gold: #F6B61C;
   --kin-gold-soft: #FDF4DD;
   --kin-gold-deep: #8A6200;
@@ -114,34 +199,21 @@ CSS = """
   --kin-r-sm: 10px;
   --kin-shadow: 0 1px 2px rgba(16,18,22,.04), 0 4px 16px rgba(16,18,22,.05);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --kin-gold: #FFC83D;
-    --kin-gold-soft: #2B2516;
-    --kin-gold-deep: #FFDA86;
-    --kin-ink: #F4F5F7;
-    --kin-text: #E9EBEF;
-    --kin-muted: #A6ADBA;
-    --kin-faint: #878E9C;
-    --kin-surface: #15171C;
-    --kin-surface-2: #1C1F26;
-    --kin-surface-3: #23272F;
-    --kin-border: #2E333D;
-    --kin-danger: #F3B7B3;
-    --kin-danger-soft: #3A211F;
-    --kin-warn: #FFD392;
-    --kin-warn-soft: #332814;
-    --kin-ok: #9DE4B6;
-    --kin-ok-soft: #14301F;
-    --kin-sim: #C8B4F7;
-    --kin-sim-soft: #241D38;
-    --kin-info-soft: #1A2131;
-    --kin-shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 18px rgba(0,0,0,.25);
-  }
-}
+__KIN_DARK__
 
-html, body, [class*="st-"], .stMarkdown, button, input, select, textarea {
+/* Inter is applied to text surfaces only; see the note in css(). */
+html, body, .stApp, .stMarkdown, p, li, label, h1, h2, h3, h4, h5, h6,
+button, input, select, textarea {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+/* Never restyle an icon font: these elements rely on ligatures. */
+[data-testid="stIconMaterial"], [data-testid="stExpandMoreIcon"],
+.material-icons, .material-icons-outlined,
+.material-symbols-rounded, .material-symbols-outlined,
+span[class^="material-"], span[class*=" material-"],
+[class*="icon"] > svg, [data-baseweb] svg {
+  font-family: 'Material Symbols Rounded', 'Material Symbols Outlined',
+               'Material Icons' !important;
 }
 .block-container { padding-top: 1.6rem; padding-bottom: 3rem; max-width: 1220px; }
 @media (max-width: 640px) { .block-container { padding-left: 16px; padding-right: 16px; } }
@@ -426,6 +498,34 @@ section[data-testid="stSidebar"] .stRadio label:hover { background: var(--kin-su
 }
 </style>
 """
+
+
+def css(mode: str = "Auto") -> str:
+    """Stylesheet for the chosen appearance.
+
+    "Auto" follows the operating system colour scheme. "Light" and "Dark"
+    override it, which also means restyling Streamlit's own chrome, because
+    the framework's base theme is fixed in config.toml at startup and cannot
+    be switched from Python at runtime.
+
+    A note on the font rules in _BASE: Inter is applied only to text-bearing
+    elements. A selector broad enough to match every Streamlit class also hits
+    the Material Symbols spans, and because those icons are ligatures the
+    browser then paints the ligature NAME as literal text — which is how
+    "keyboard_double_arrow_left" ended up printed above the sidebar.
+    """
+    if mode == "Dark":
+        dark = ":root {" + _DARK_TOKENS + "}\n" + _DARK_CHROME
+    elif mode == "Light":
+        dark = ""                      # the base tokens are already light
+    else:
+        dark = ("@media (prefers-color-scheme: dark) {\n"
+                "  :root {" + _DARK_TOKENS + "  }\n" + _DARK_CHROME + "\n}")
+    return _BASE.replace("__KIN_DARK__", dark)
+
+
+#: Backwards-compatible default (automatic light/dark).
+CSS = css("Auto")
 
 
 def _esc(value: Any) -> str:
