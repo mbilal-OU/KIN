@@ -7,7 +7,11 @@ provenance by kin_sources. The language model explains; it never decides.
 from __future__ import annotations
 
 import json
+import os
+import tempfile
+import uuid
 from datetime import datetime, time, timedelta
+from pathlib import Path
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -35,6 +39,46 @@ from kin_sources import (
 )
 
 load_dotenv()
+
+
+def _adopt_streamlit_secrets() -> None:
+    """Streamlit Cloud and Hugging Face supply configuration as st.secrets.
+
+    The rest of KIN reads os.environ, so bridge the two. Existing environment
+    variables win, which keeps a local .env authoritative during development.
+    Accessing st.secrets raises when no secrets exist, which is normal locally.
+    """
+    try:
+        available = st.secrets
+    except Exception:                                         # noqa: BLE001
+        return
+    for key in ("KIN_AI_PROVIDER", "GEMINI_API_KEY", "KIN_GEMMA_MODEL",
+                "KIN_OLLAMA_MODEL", "KIN_OLLAMA_URL", "KIN_NWS_USER_AGENT",
+                "KIN_HOSTED"):
+        try:
+            if not os.environ.get(key) and key in available:
+                os.environ[key] = str(available[key])
+        except Exception:                                     # noqa: BLE001
+            continue
+
+
+_adopt_streamlit_secrets()
+
+#: A public deployment serves many strangers from one process. Each browser
+#: session therefore gets its own database file, so nobody sees anyone else's
+#: timetable. Locally this is off and a single durable file is used instead.
+HOSTED = os.getenv("KIN_HOSTED", "").strip().lower() in ("1", "true", "yes")
+
+
+def _bind_session_database() -> None:
+    if not HOSTED:
+        store.set_db_path(None)
+        return
+    if "session_db" not in st.session_state:
+        root = Path(os.getenv("KIN_SESSION_DIR", Path(tempfile.gettempdir()) / "kin-sessions"))
+        st.session_state["session_db"] = str(root / f"{uuid.uuid4().hex}.db")
+    store.set_db_path(st.session_state["session_db"])
+
 
 OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closings/"
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
@@ -64,6 +108,7 @@ def _bootstrap() -> None:
             store.save_commitment(record)
 
 
+_bind_session_database()
 _bootstrap()
 
 # The stylesheet must be written before anything else renders, so the chosen
@@ -1226,6 +1271,18 @@ else:
             st.link_button(s["name"], s["url"])
 
     with tab_data:
+        if HOSTED:
+            st.markdown(theme.card(
+                "You are using a hosted demonstration",
+                ["Everything you enter is kept in a <b>private database for this browser "
+                 "session only</b>. Other visitors cannot see it, and you cannot see theirs.",
+                 "<b>It is deleted when the server restarts</b>, so treat this as a "
+                 "scratchpad. Use the export button below to keep anything.",
+                 "A hosted deployment still processes data server-side, so this is not "
+                 "anonymity. Enter fictional information only."],
+                variant="is-warn",
+                badges=theme.badge("session-scoped storage", "estimate")),
+                unsafe_allow_html=True)
         snapshot = store.export_all()
         c1, c2, c3 = st.columns(3)
         c1.metric("Commitments", len(snapshot["commitments"]))

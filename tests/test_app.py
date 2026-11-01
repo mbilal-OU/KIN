@@ -501,6 +501,57 @@ class TestWithFullDataset:
         assert len(options) >= 5
 
 
+# -------------------------------------------------- hosted deployment mode
+class TestHostedMode:
+    """KIN_HOSTED=1 is what a public Space or Streamlit Cloud app runs with."""
+
+    @pytest.fixture()
+    def hosted(self, tmp_path, monkeypatch):
+        monkeypatch.setenv("KIN_HOSTED", "1")
+        monkeypatch.setenv("KIN_SESSION_DIR", str(tmp_path / "sessions"))
+        monkeypatch.setenv("KIN_DB_PATH", str(tmp_path / "shared.db"))
+        monkeypatch.setenv("GEMINI_API_KEY", "replace_with_your_own_key")
+        importlib.reload(kin_store)
+        harness = AppTest.from_file(APP, default_timeout=30)
+        harness.run()
+        return harness, tmp_path
+
+    def test_it_starts_and_seeds_a_private_session_database(self, hosted):
+        app, tmp_path = hosted
+        assert not app.exception
+        created = list((tmp_path / "sessions").glob("*.db"))
+        assert len(created) == 1, "each session should get its own database file"
+        assert not (tmp_path / "shared.db").exists(), \
+            "hosted mode must not write to the shared default database"
+
+    def test_the_session_database_is_reused_across_reruns(self, hosted):
+        app, tmp_path = hosted
+        _goto(app, "Planner")
+        _goto(app, "Today")
+        assert not app.exception
+        assert len(list((tmp_path / "sessions").glob("*.db"))) == 1
+
+    def test_trust_screen_explains_session_scoped_storage(self, hosted):
+        app, _ = hosted
+        _goto(app, "Settings & Trust")
+        body = " ".join(m.value for m in app.markdown)
+        assert "hosted demonstration" in body
+        assert "deleted when the server restarts" in body
+        assert "not anonymity" in body
+
+    def test_every_screen_works_when_hosted(self, hosted):
+        app, _ = hosted
+        for screen in SCREENS:
+            _goto(app, screen)
+            assert not app.exception, f"{screen} raised: {app.exception}"
+
+
+def test_local_mode_does_not_create_session_databases(app, tmp_path):
+    """Without KIN_HOSTED the app keeps one durable database, as before."""
+    assert not app.exception
+    assert kin_store.current_db_path() == kin_store.DB_PATH
+
+
 # -------------------------------------------------------- global footer
 def test_footer_disclaims_emergency_use_on_every_screen(app):
     for screen in SCREENS:

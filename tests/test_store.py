@@ -262,6 +262,65 @@ def test_erase_all_clears_every_table(store, workspace):
     assert store.get_preferences()["planning_buffer"] == 45
 
 
+# ------------------------------------------- per-session isolation (hosting)
+def test_set_db_path_redirects_reads_and_writes(store, tmp_path):
+    first = store.ensure_default_workspace()
+    store.save_commitment(make_commitment("In first", "2026-10-30T10:00:00-04:00",
+                                          "2026-10-30T11:00:00-04:00",
+                                          workspace_id=first["id"]))
+    store.set_db_path(tmp_path / "second.db")
+    assert store.list_commitments() == [], "a new path must start empty"
+    second = store.ensure_default_workspace()
+    store.save_commitment(make_commitment("In second", "2026-10-30T12:00:00-04:00",
+                                          "2026-10-30T13:00:00-04:00",
+                                          workspace_id=second["id"]))
+    assert [c["title"] for c in store.list_commitments()] == ["In second"]
+    store.set_db_path(None)
+    assert [c["title"] for c in store.list_commitments()] == ["In first"]
+
+
+def test_set_db_path_creates_missing_directories(store, tmp_path):
+    store.set_db_path(tmp_path / "nested" / "deeper" / "session.db")
+    store.ensure_default_workspace()
+    assert (tmp_path / "nested" / "deeper" / "session.db").exists()
+    store.set_db_path(None)
+
+
+def test_concurrent_sessions_do_not_see_each_other(store, tmp_path):
+    """Two threads with different databases must stay fully isolated.
+
+    This is the guarantee a public deployment depends on: Streamlit runs each
+    browser session's script on its own thread.
+    """
+    import threading
+
+    results: dict[str, list[str]] = {}
+    barrier = threading.Barrier(2)
+
+    def session(name: str) -> None:
+        store.set_db_path(tmp_path / f"{name}.db")
+        workspace = store.ensure_default_workspace()
+        store.save_commitment(make_commitment(
+            f"{name} event", "2026-10-30T10:00:00-04:00",
+            "2026-10-30T11:00:00-04:00", workspace_id=workspace["id"]))
+        barrier.wait(timeout=10)          # both have written before either reads
+        results[name] = [c["title"] for c in store.list_commitments()]
+
+    threads = [threading.Thread(target=session, args=(n,)) for n in ("alice", "bob")]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=15)
+
+    assert results["alice"] == ["alice event"]
+    assert results["bob"] == ["bob event"]
+
+
+def test_default_path_is_used_when_nothing_is_bound(store):
+    store.set_db_path(None)
+    assert store.current_db_path() == store.DB_PATH
+
+
 # ------------------------------------------------------------- iCalendar
 def test_ics_export_round_trips_through_the_parser():
     """Export then re-import must preserve the instant and the Michigan wall clock."""

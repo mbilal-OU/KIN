@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import os
 import sqlite3
+import threading
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -23,6 +24,24 @@ from typing import Any, Iterator
 from kin_models import MICHIGAN, DEFAULT_PREFERENCES, make_workspace
 
 DB_PATH = Path(os.getenv("KIN_DB_PATH", Path(__file__).parent / "kin_local.db"))
+
+#: Per-thread database override.
+#:
+#: Streamlit runs each browser session's script in its own thread. On a shared
+#: public deployment a single database file would mean every visitor reading
+#: and writing the same rows, so the app binds a per-session path at the start
+#: of each run. threading.local keeps concurrent sessions from racing on a
+#: module-level global.
+_active = threading.local()
+
+
+def set_db_path(path: Path | str | None) -> None:
+    """Bind the database for the current thread. None restores the default."""
+    _active.path = Path(path) if path else None
+
+
+def current_db_path() -> Path:
+    return getattr(_active, "path", None) or DB_PATH
 
 _SCHEMA = """
 -- assistant_alias is intentionally nullable:
@@ -67,7 +86,9 @@ _schema_ready: set[str] = set()
 
 @contextmanager
 def _conn() -> Iterator[sqlite3.Connection]:
-    path = str(DB_PATH)
+    target = current_db_path()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    path = str(target)
     connection = sqlite3.connect(path, timeout=5)
     connection.row_factory = sqlite3.Row
     try:
@@ -83,7 +104,7 @@ def _conn() -> Iterator[sqlite3.Connection]:
 
 def init_db() -> None:
     """Explicitly create the schema. Safe to call repeatedly."""
-    _schema_ready.discard(str(DB_PATH))
+    _schema_ready.discard(str(current_db_path()))
     with _conn():
         pass
 
