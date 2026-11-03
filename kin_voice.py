@@ -159,6 +159,23 @@ def local_voice_answer(
             "suggestions": [], "target_id": None,
         }
 
+    # A named fixed/protected event must never be silently substituted with
+    # some OTHER flexible event. Ask the user to choose in the planner instead.
+    named = [
+        c for c in workspace_commitments
+        if c.get("title", "").strip()
+        and c["title"].strip().lower() in q.lower()
+    ]
+    if named and all(c.get("scheduling_mode", "fixed") != "flexible" for c in named):
+        return {
+            "answer": (
+                f"{named[0]['title']} is marked fixed or protected in KIN. "
+                "I won't propose moving it automatically. If you have a "
+                "different flexible commitment, review it in Planner. "
+                "I haven't changed anything."
+            ), "suggestions": [], "target_id": None,
+        }
+
     active = [
         item for item in workspace_commitments
         if item.get("scheduling_mode", "fixed") == "flexible"
