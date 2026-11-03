@@ -25,7 +25,7 @@ from kin_ai import (
 )
 from kin_calendar import export_ics, parse_ics
 from kin_life import (
-    REPEAT_RULES, SCHEDULING_MODES, build_manual_occurrences,
+    REPEAT_RULES, SCHEDULING_MODES, answer_with_rules, build_manual_occurrences,
     default_scheduling_mode, suggest_alternative_slots,
 )
 from kin_core import (
@@ -221,6 +221,11 @@ def ai_payload(commitments: list[dict], preferences: dict, **extra) -> dict:
     else:
         schedule = [{"redacted": True, "count": len(commitments),
                      "note": "User disabled schedule sharing with the AI provider."}]
+        # Additional briefing and question-context fields contain private
+        # event titles, identifiers, and availability. Remove those as well.
+        withheld = {"upcoming", "internal_conflicts", "free_windows", "impacts"}
+        extra = {k: v for k, v in extra.items() if k not in withheld}
+        extra["private_schedule_details_withheld"] = True
     return {"commitments": schedule,
             "planning_buffer_minutes": preferences.get("planning_buffer"),
             "transport_mode": preferences.get("transport_mode"),
@@ -284,9 +289,11 @@ with st.sidebar:
         store.set_preference("theme", appearance)
 
     status = provider_status()
-    chip = "live" if status["configured"] else "blocked"
+    rules_only = status["provider"] == "Rules-only (free)"
+    chip = "live" if status["configured"] else "neutral" if rules_only else "blocked"
     st.markdown(
-        theme.badge("AI " + ("ready" if status["configured"] else "not configured"), chip)
+        theme.badge("AI " + ("ready" if status["configured"] else
+                             "off (free mode)" if rules_only else "not configured"), chip)
         + f'<div style="font-size:11.5px;color:var(--kin-muted);margin-top:2px">'
           f'{status["provider"]} · {status["model"]}</div>', unsafe_allow_html=True)
     st.caption("Guest mode. No OU login. Fictional data only.")
@@ -393,7 +400,13 @@ if screen == "Today":
         st.markdown(theme.section("✨", "Grounded briefing", "powered by Gemma 4"),
                     unsafe_allow_html=True)
         st.caption("Built from your stored state. Gemma explains; it never invents events.")
-        if st.button(f"Ask {companion} for today's briefing", type="primary"):
+        if st.button(("Show free planning briefing" if
+                      provider_status()["provider"] == "Rules-only (free)" else
+                      f"Ask {companion} for today's briefing"), type="primary"):
+            local_briefing = dict(
+                upcoming=[{"title": c["title"], "when": span(c["start"], c["end"])}
+                          for c in upcoming[:6]],
+                internal_conflicts=conflicts, impacts=impacts, free_windows=free)
             payload = ai_payload(
                 commitments, preferences,
                 upcoming=[{"title": c["title"], "when": span(c["start"], c["end"])}
@@ -402,14 +415,18 @@ if screen == "Today":
                 free_windows=free,
                 weather_status=(weather or {}).get("alerts_status", "not requested"),
                 simulation_active=bool(st.session_state.get("demo_sim")))
-            with st.spinner("Gemma 4 is reading your structured state..."):
-                text, provider, ok = run_model(daily_briefing, briefing_fallback, payload)
+            if provider_status()["provider"] == "Rules-only (free)":
+                text, provider, ok = (
+                    briefing_fallback(local_briefing), "KIN local rules (no AI call)", False)
+            else:
+                with st.spinner("Gemma 4 is reading your structured state..."):
+                    text, provider, ok = run_model(daily_briefing, briefing_fallback, payload)
             st.session_state["briefing"] = (text, provider, ok)
         if st.session_state.get("briefing"):
             text, provider, ok = st.session_state["briefing"]
             (st.success if ok else st.warning)(
                 f"AI-generated using {provider}" if ok
-                else "Gemma unavailable — showing the deterministic fallback below.")
+                else "Free, rule-generated briefing — not an AI response.")
             st.markdown(text)
             st.caption(provider)
 
@@ -673,7 +690,7 @@ elif screen == "Planner":
                     left, right = st.columns([3, 2])
                     left.markdown(
                         f"**{span(option['start'], option['end'])}**"
-                        f"  \\n\\nTime shift: {option['shift_minutes']:+} minutes")
+                        f"  \n\nTime shift: {option['shift_minutes']:+} minutes")
                     if right.button(
                         "Approve this time", key=f"approve-move-{target_id}-{option['start']}",
                         use_container_width=True):
@@ -719,7 +736,8 @@ elif screen == "Planner":
             "Paste fictional schedule information",
             value="On Friday October 30, 2026, I have a biology study meeting "
                   "from 5:00 PM until 5:45 PM at Oakland University.", height=95)
-        if st.button("Extract schedule with Gemma 4", type="primary"):
+        if st.button("Extract schedule with Gemma 4", type="primary",
+                     disabled=provider_status()["provider"] == "Rules-only (free)"):
             try:
                 with st.spinner("Gemma 4 is extracting event details..."):
                     proposed, provider = extract_commitment_from_text(raw_text)
@@ -1249,6 +1267,14 @@ elif screen == "Ask the assistant":
     question = st.text_input("Your question",
                              placeholder="What is on my timetable before the exam?")
     if st.button("Ask", type="primary") and question.strip():
+        if provider_status()["provider"] == "Rules-only (free)":
+            try:
+                answer = answer_with_rules(question, commitments)
+                provider, ok = "KIN local rules (no AI call)", False
+            except ValueError as exc:
+                answer, provider, ok = str(exc), "KIN local rules", False
+            st.session_state["qa_history"].insert(0, (question, answer, provider, ok))
+            st.rerun()
         weather = st.session_state.get("weather")
         context = ai_payload(
             commitments, preferences,
