@@ -663,3 +663,23 @@ def test_footer_disclaims_emergency_use_on_every_screen(app):
         _goto(app, screen)
         captions = " ".join(c.value for c in app.caption)
         assert "not an emergency notification system" in captions, screen
+
+
+def test_voice_assistant_shows_recording_and_local_conflict_advice(app):
+    _goto(app, "Ask the assistant")
+    assert not app.exception
+    labels = [m.value for m in app.markdown]
+    assert any("Talk with KIN" in value for value in labels)
+    assert any(b.label == "Ask KIN using local rules" for b in app.button)
+    assert app.audio_input, "Voice recording widget is missing"
+
+    [field for field in app.text_area
+     if field.label == "Review the recognized words or type a request"][0].set_value(
+        "How can I resolve a conflict?")
+    [button for button in app.button
+     if button.label == "Ask KIN using local rules"][0].click().run()
+    assert not app.exception
+    assert any("haven't changed anything" in value for value in
+               [m.value for m in app.markdown])
+    assert any(b.label == "🔊 Read this answer aloud (offline)"
+               for b in app.button)
