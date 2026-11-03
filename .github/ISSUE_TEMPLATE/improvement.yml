@@ -1,0 +1,46 @@
+name: "Modification / Suggestion"
+description: "Suggest a change to an existing KIN feature, interface, behavior or documentation"
+title: "[Improvement] "
+body:
+  - type: markdown
+    attributes:
+      value: "Use this form for changes to existing behavior. Redact personal schedules, email, voice transcripts, credentials and other sensitive data."
+  - type: textarea
+    id: existing
+    attributes:
+      label: "What does KIN do now?"
+      description: "Describe the current behavior or link to the relevant feature."
+    validations:
+      required: true
+  - type: textarea
+    id: desired
+    attributes:
+      label: "What should change?"
+    validations:
+      required: true
+  - type: textarea
+    id: reason
+    attributes:
+      label: "Why is this change useful?"
+    validations:
+      required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: "Impact"
+      options:
+        - "User experience"
+        - "Scheduling logic"
+        - "Security / privacy"
+        - "Performance / reliability"
+        - "Documentation"
+        - "Other"
+  - type: textarea
+    id: criteria
+    attributes:
+      label: "How will we verify the improvement?"
+      placeholder: "- [ ] ..."
+  - type: textarea
+    id: notes
+    attributes:
+      label: "References / additional notes"
