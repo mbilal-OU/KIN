@@ -190,8 +190,8 @@ def test_manual_event_can_be_added_and_deleted(app):
 def test_free_first_repeating_routine_is_saved_as_individual_entries(app):
     _goto(app, "Planner")
     before = len(kin_store.list_commitments())
-    [w for w in app.selectbox if w.label == "Repeat"][0].set_value("Every week").run()
-    [w for w in app.number_input if w.label == "For how many weeks?"][0].set_value(2).run()
+    [w for w in app.selectbox if w.label == "Repeat"][0].set_value("Every week")
+    [w for w in app.number_input if w.label == "For how many weeks?"][0].set_value(2)
     [b for b in app.button if b.label == "Add to timetable"][0].click().run()
     assert not app.exception
     after = kin_store.list_commitments()
@@ -207,8 +207,8 @@ def test_free_first_rescheduling_requires_approval(app):
 
     _goto(app, "Planner")
     tomorrow = datetime.now(MICHIGAN).date() + timedelta(days=1)
-    [w for w in app.date_input if w.label == "Date"][0].set_value(tomorrow).run()
-    [w for w in app.selectbox if w.label == "Scheduling flexibility"][0].set_value("flexible").run()
+    [w for w in app.date_input if w.label == "Date"][0].set_value(tomorrow)
+    [w for w in app.selectbox if w.label == "Scheduling flexibility"][0].set_value("flexible")
     [b for b in app.button if b.label == "Add to timetable"][0].click().run()
     assert not app.exception
     work = next(c for c in kin_store.list_commitments()
