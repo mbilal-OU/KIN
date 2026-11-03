@@ -84,6 +84,7 @@ The existing roadmap above describes the original prototype and its staged techn
 | P1 | Independent email/passkey accounts | [#14](https://github.com/mbilal-OU/KIN/issues/14) |
 | P1 | Local-first encrypted storage and optional sync | [#15](https://github.com/mbilal-OU/KIN/issues/15) |
 | P1 | Student pilot and OU commercialization evidence | [#19](https://github.com/mbilal-OU/KIN/issues/19) |
+| P1 | Evaluate Gemini models as optional AI provider and OU pathway | [#21](https://github.com/mbilal-OU/KIN/issues/21) |
 | P2 | OU calendar/class schedule connection | [#16](https://github.com/mbilal-OU/KIN/issues/16) |
 | P2 | OU Moodle deadlines and announcements | [#17](https://github.com/mbilal-OU/KIN/issues/17) |
 | P2 | OU email access feasibility | [#18](https://github.com/mbilal-OU/KIN/issues/18) |
