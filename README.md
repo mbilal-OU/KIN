@@ -36,7 +36,21 @@ events clash, and it never decides whether a class is canceled.
 
 ## Explore KIN
 
-[**Open live demo**](http://141.210.133.171:8501/) | [**How it works**](#how-kin-works) | [**Technology**](#technology-we-used) | [**Demo walkthrough**](#try-the-demo) | [**Tests**](#tests) | [**Trust and limitations**](#honest-limitations) | [**Ideas, Tasks & Roadmap**](docs/DEVELOPMENT_HUB.md)
+[**Open live demo**](http://141.210.133.171:8501/) | [**Free-first guide**](docs/FREE_FIRST.md) | [**How it works**](#how-kin-works) | [**Technology**](#technology-we-used) | [**Demo walkthrough**](#try-the-demo) | [**Tests**](#tests) | [**Trust and limitations**](#honest-limitations) | [**Ideas, Tasks & Roadmap**](docs/DEVELOPMENT_HUB.md)
+
+## Free-first life planning (3 November 2026)
+
+The next iteration adds useful **no-AI-required** features while keeping the original hackathon demo:
+
+- **Manual repeating routines:** once, daily, weekdays or weekly, up to 12 weeks. These are expanded into individual local events, not a full recurring-series manager.
+- **Fixed, flexible and protected** commitments. The user chooses what may be suggested for rescheduling.
+- **Resolve conflicts:** rule-based suggestions for alternative time slots for flexible items, with explicit approval and read-back verification. Only the selected workspace is checked; no OU or employer schedule is changed.
+- **Local planning Q&A and daily briefings:** common questions work with `KIN_AI_PROVIDER=off`, with no AI API requests or key. Gemma 4 is optional.
+- **Privacy-first default:** schedule detail sharing with external AI is opt-in for new profiles. This is still an unencrypted, guest-mode prototype and must not be used for private production records.
+
+The home view and new manual dates now use the current Michigan day. The October 2026 fictional sample timetable is deliberately preserved for historical demonstration.
+
+[**Free-first setup, feature boundaries and caveats**](docs/FREE_FIRST.md) | [**Tracked development tasks**](docs/DEVELOPMENT_HUB.md)
 
 ## How KIN works
 
@@ -168,15 +182,23 @@ cp .env.example .env        # then edit .env and add your own key
 
 Then open <http://localhost:8501>.
 
-### Configuring the model
+### Free-first AI configuration
 
-Put your own key in `.env` (never in a chat, screenshot, or commit):
+The planner works without a paid model or API key. The example configuration uses:
+
+```ini
+KIN_AI_PROVIDER=off
+```
+
+With AI off, manual routines, time-conflict checks, safe alternative slots, local schedule answers and rule-built briefings still work. To **optionally** use hosted Gemma 4 for free-text extraction and polished explanations, provide your own credentials in `.env` (never in a chat, screenshot or commit):
 
 ```ini
 KIN_AI_PROVIDER=gemini
 GEMINI_API_KEY=your_own_key_from_aistudio_google_com
 KIN_GEMMA_MODEL=gemma-4-26b-a4b-it
 ```
+
+Provider pricing, free-tier limits and data handling vary. OU's Gemini chat access is not KIN API authorization.
 
 **Fully local alternative** , nothing leaves your machine:
 
