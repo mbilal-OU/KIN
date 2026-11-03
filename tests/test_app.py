@@ -187,6 +187,47 @@ def test_manual_event_can_be_added_and_deleted(app):
     assert len(kin_store.list_commitments()) == before + 1
 
 
+def test_free_first_repeating_routine_is_saved_as_individual_entries(app):
+    _goto(app, "Planner")
+    before = len(kin_store.list_commitments())
+    [w for w in app.selectbox if w.label == "Repeat"][0].set_value("Every week").run()
+    [w for w in app.number_input if w.label == "For how many weeks?"][0].set_value(2).run()
+    [b for b in app.button if b.label == "Add to timetable"][0].click().run()
+    assert not app.exception
+    after = kin_store.list_commitments()
+    assert len(after) == before + 2
+    new = [c for c in after if c.get("repeat_rule") == "Every week"]
+    assert len(new) == 2
+    assert len({c["series_id"] for c in new}) == 1
+
+
+def test_free_first_rescheduling_requires_approval(app):
+    from datetime import datetime, timedelta
+    from kin_models import MICHIGAN
+
+    _goto(app, "Planner")
+    tomorrow = datetime.now(MICHIGAN).date() + timedelta(days=1)
+    [w for w in app.date_input if w.label == "Date"][0].set_value(tomorrow).run()
+    [w for w in app.selectbox if w.label == "Scheduling flexibility"][0].set_value("flexible").run()
+    [b for b in app.button if b.label == "Add to timetable"][0].click().run()
+    assert not app.exception
+    work = next(c for c in kin_store.list_commitments()
+                if c["title"] == "Work shift" and c.get("scheduling_mode") == "flexible")
+    original = (work["start"], work["end"])
+
+    _goto(app, "Planner")
+    move = [b for b in app.button if b.label == "Approve this time"]
+    assert move, "No approval-gated options shown for a flexible commitment"
+    assert (work["start"], work["end"]) == original
+    move[0].click().run()
+    assert not app.exception
+    changed = next(c for c in kin_store.list_commitments() if c["id"] == work["id"])
+    assert (changed["start"], changed["end"]) != original
+    assert any(a["verified"] and a["type"] == "UPDATE_LOCAL_EVENT"
+               and a["summary"].startswith("Rescheduled")
+               for a in kin_store.list_actions())
+
+
 def test_planner_exposes_an_ics_download(app):
     _goto(app, "Planner")
     assert not app.exception
