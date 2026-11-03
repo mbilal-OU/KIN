@@ -151,3 +151,45 @@ def test_proposals_do_not_claim_to_modify_authoritative_schedules():
     assert proposals
     assert work["start"] == "2026-11-04T10:00:00-05:00"
     assert flexible["start"] == "2026-11-04T11:00:00-05:00"
+
+
+def test_rule_based_answers_are_local_and_concrete():
+    from kin_life import answer_with_rules
+
+    class_event = make_event("BIO lecture", "2026-11-04T10:00:00-05:00",
+                             "2026-11-04T11:00:00-05:00")
+    gym = make_event("Gym", "2026-11-04T10:30:00-05:00",
+                     "2026-11-04T11:30:00-05:00", mode="flexible")
+    now = datetime.fromisoformat("2026-11-04T09:00:00-05:00")
+    conflict_answer = answer_with_rules("Do I have conflicts?", [class_event, gym], now=now)
+    assert "BIO lecture" in conflict_answer
+    assert "Gym" in conflict_answer
+    assert "Resolve conflicts" in conflict_answer
+
+    schedule_answer = answer_with_rules("What is my schedule today?",
+                                        [class_event, gym], now=now)
+    assert "BIO lecture" in schedule_answer
+    assert "Gym" in schedule_answer
+
+    free_answer = answer_with_rules("When am I free?", [class_event], now=now)
+    assert "Available windows" in free_answer
+
+
+def test_rules_only_provider_blocks_model_calls(monkeypatch):
+    from kin_ai import _call_gemma, provider_status
+
+    monkeypatch.setenv("KIN_AI_PROVIDER", "off")
+    monkeypatch.setenv("GEMINI_API_KEY", "this-is-not-used")
+    status = provider_status()
+    assert status["provider"] == "Rules-only (free)"
+    assert status["configured"] is False
+    with pytest.raises(RuntimeError, match="disabled"):
+        _call_gemma("A prompt that must never leave this machine")
+
+
+def test_rule_answer_cannot_infer_ou_closure():
+    from kin_life import answer_with_rules
+
+    result = answer_with_rules("Are classes canceled because of the storm?", [])
+    assert "cannot confirm" in result
+    assert "official" in result
