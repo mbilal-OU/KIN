@@ -171,3 +171,18 @@ def test_named_fixed_event_is_not_substituted_with_other_flexible_event():
     assert reply["suggestions"] == []
     assert reply["target_id"] is None
     assert "Exam" in reply["answer"] and "fixed or protected" in reply["answer"]
+
+
+def test_voice_asks_which_flexible_event_when_multiple_are_possible():
+    gym = event("Gym", "2026-11-04T10:00:00-05:00",
+                "2026-11-04T11:00:00-05:00", ws="Personal", mode="flexible")
+    study = event("Study", "2026-11-04T11:00:00-05:00",
+                  "2026-11-04T12:00:00-05:00", ws="Personal", mode="flexible")
+    lab = event("Lab", "2026-11-04T10:30:00-05:00",
+                "2026-11-04T11:30:00-05:00", ws="University")
+    answer = local_voice_answer(
+        "Resolve my conflicts", [gym, study], [gym, study, lab],
+        now=datetime.fromisoformat("2026-11-03T08:00:00-05:00"))
+    assert answer["suggestions"] == []
+    assert answer["target_id"] is None
+    assert "Please name the specific one" in answer["answer"]
