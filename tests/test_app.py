@@ -349,11 +349,23 @@ def test_sidebar_navigation_covers_every_screen(app):
 
 
 def test_today_renders_a_timeline_with_type_colours(app):
+    # The October 2026 hackathon seed is historical now. Add a future exam
+    # before checking its colour, so the test still covers the real Today view.
+    from datetime import datetime, timedelta
+    from kin_models import MICHIGAN, make_commitment
+    from kin_theme import TYPE_COLORS
+
+    day = datetime.now(MICHIGAN) + timedelta(days=1)
+    start = day.replace(hour=9, minute=0, second=0, microsecond=0)
+    end = day.replace(hour=10, minute=0, second=0, microsecond=0)
+    ws = kin_store.list_workspaces()[0]
+    kin_store.save_commitment(make_commitment(
+        "Upcoming exam", start.isoformat(), end.isoformat(),
+        event_type="exam", workspace_id=ws["id"]))
+    app.run()
     rendered = " ".join(m.value for m in app.markdown)
     assert "kin-timeline" in rendered
     assert "kin-tl" in rendered
-    # The seeded exam should carry its event-type colour on the timeline dot.
-    from kin_theme import TYPE_COLORS
     assert TYPE_COLORS["exam"] in rendered
 
 
