@@ -228,6 +228,54 @@ def test_free_first_rescheduling_requires_approval(app):
                for a in kin_store.list_actions())
 
 
+def test_edit_routine_preview_requires_approval(app):
+    _goto(app, "Planner")
+    [b for b in app.button if b.label == "Add to timetable"][0].click().run()
+    assert not app.exception
+    original = next(c for c in kin_store.list_commitments()
+                    if c["title"] == "Work shift")
+    before = (original["title"], original["start"], original["end"])
+
+    [w for w in app.text_input if w.label == "Updated title"][0].set_value("New work title")
+    [b for b in app.button if b.label == "Preview edit"][0].click().run()
+    assert not app.exception
+    stored = next(c for c in kin_store.list_commitments() if c["id"] == original["id"])
+    assert (stored["title"], stored["start"], stored["end"]) == before
+
+    [b for b in app.button if b.label == "Approve edits"][0].click().run()
+    assert not app.exception
+    after = next(c for c in kin_store.list_commitments() if c["id"] == original["id"])
+    assert after["title"] == "New work title"
+    assert any(a["verified"] and "routine occurrence" in a["summary"]
+               for a in kin_store.list_actions())
+
+
+def test_cross_workspace_clashes_render_on_today(app):
+    from datetime import datetime, timedelta
+    from kin_models import MICHIGAN, make_commitment, make_workspace
+
+    first_ws = kin_store.list_workspaces()[0]
+    second_ws = kin_store.add_workspace(make_workspace("Employment", "Employment"))
+    start = (datetime.now(MICHIGAN) + timedelta(days=2)).replace(
+        hour=14, minute=0, second=0, microsecond=0)
+    end = start + timedelta(hours=1)
+    kin_store.save_commitment(make_commitment(
+        "University lab", start.isoformat(), end.isoformat(),
+        workspace_id=first_ws["id"], event_type="lab"))
+    kin_store.save_commitment(make_commitment(
+        "Work shift", (start + timedelta(minutes=30)).isoformat(),
+        (end + timedelta(minutes=30)).isoformat(),
+        workspace_id=second_ws["id"], event_type="work"))
+    app.run()
+    assert not app.exception
+    assert any("Conflicts across your KIN workspaces" in m.value
+               for m in app.markdown)
+    _goto(app, "Planner")
+    assert not app.exception
+    assert any(w.label == "Consider my other KIN workspaces" and w.value
+               for w in app.checkbox)
+
+
 def test_planner_exposes_an_ics_download(app):
     _goto(app, "Planner")
     assert not app.exception
