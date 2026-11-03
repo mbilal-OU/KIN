@@ -182,6 +182,6 @@ DEFAULT_PREFERENCES: dict[str, Any] = {
     "favorite_teams": ["Oakland Golden Grizzlies"],  # filters Discover
     "quiet_hours_start": 22,       # collapses low-importance notices
     "quiet_hours_end": 7,
-    "share_schedule_with_ai": True,
+    "share_schedule_with_ai": False,  # opt-in; no private schedule details by default
     "theme": "Auto",               # Auto | Light | Dark, applied by kin_theme.css
 }
