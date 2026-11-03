@@ -19,10 +19,12 @@ This section supplements, rather than rewrites, the original hackathon verificat
 | Feature | Status | What actually works / limitation |
 |---|---|---|
 | No-cost AI-off mode | WORKING AND VERIFIED | `KIN_AI_PROVIDER=off` makes no model requests; optional Google SDK moved to `requirements-ai.txt` |
-| Manual repeat entry | WORKING AND VERIFIED | Daily, weekdays or weekly occurrences for 1–12 weeks are stored as separate events, with DST checks; **not** full RRULE/series editing |
+| Manual repeat entry | WORKING AND VERIFIED | Daily, weekdays or weekly events for 1–12 weeks; DST checks; no live RRULE engine |
 | Scheduling mode | WORKING AND VERIFIED | Stored records can be marked fixed, flexible or protected; previous records default to fixed |
-| Alternative-slot suggestions | PARTIALLY IMPLEMENTED | Rule-checked candidate times for flexible events, selected workspace only; no cross-workspace scheduling or real travel estimation |
+| Alternative-slot suggestions | PARTIALLY IMPLEMENTED | Rule-checked candidate times across the user's KIN workspaces by default; no external calendar lookup, verified travel duration or priority reasoning |
 | Approval-gated rescheduling | WORKING AND VERIFIED | User approves a proposed move; KIN rechecks it and verifies the stored result |
+| Series occurrence editing/cancellation | WORKING AND VERIFIED | Preview and approve one, future or all manual routine records; transactional stale-preview checks; no full RRULE editing/pause-resume |
+| Cross-workspace conflict visibility | WORKING AND VERIFIED | On Today, reports clashes across guest-profile workspaces; Resolve conflicts can consider other local workspaces |
 | Free-first local questions | WORKING AND VERIFIED | Basic schedule, overlap, available-time, and rescheduling questions; not arbitrary conversation |
 | Local daily briefing | WORKING AND VERIFIED | Rule-built summary with no model request when AI is off |
 | AI privacy default | PARTIALLY IMPLEMENTED | New profiles opt out of schedule sharing by default; protected external AI context is minimized, but current guest storage is **not encrypted** |
@@ -102,7 +104,7 @@ See [Free-first setup](FREE_FIRST.md), [Development Hub](DEVELOPMENT_HUB.md), an
 
 | Feature | Status | Notes |
 |---|---|---|
-| Work shifts in their own workspace | WORKING AND VERIFIED | `work` event type + Employment workspace; conflicts cross contexts only within one workspace view |
+| Work shifts in their own workspace | WORKING AND VERIFIED | `work` event type + Employment workspace; additional personal KIN workspaces can now be checked for clashes |
 | Family commitments | WORKING AND VERIFIED | `family` event type + Family workspace |
 | Gaming / esports / recreation blocks | WORKING AND VERIFIED | Activity templates |
 | Future-Self Simulator | WORKING AND VERIFIED | Move-and-compare with explicit apply step |

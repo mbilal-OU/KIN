@@ -18,10 +18,10 @@ Python and SQLite handle the planner. **No AI request is made when the provider 
 | Feature | Current behavior | Limits |
 |---|---|---|
 | Manual events | Add, change status, delete, search and export .ics | No institutional write access |
-| Repeated routines | Expand daily, weekday or weekly repeats into individual events for 1–12 weeks | Not a complete RRULE engine; edit/delete one occurrence at a time |
+| Repeated routines | Expand repeats into separate occurrences and preview edits or cancellations for one, future or all occurrences | Still not a full RRULE engine; no automatic exception or pause/resume model |
 | Scheduling categories | Mark a stored event **fixed**, **flexible** or **protected** | Older records default to fixed until changed |
-| Conflict detection | Deterministic overlap checking in current workspace | Other workspaces and outside calendars not considered |
-| Conflict suggestions | Find free options for a **flexible** event using 15-minute slots | Only 7 AM–10 PM; next 3, 7 or 14 days; no travel ETA or priority inference |
+| Conflict detection | Deterministic checks within a workspace and across this guest profile's KIN workspaces | Other users and external calendars not considered |
+| Conflict suggestions | Find free slots for a **flexible** event across KIN workspaces by default (optional toggle) | Only 7 AM–10 PM; next 3, 7 or 14 days; no travel ETA or priority inference |
 | Move approval | Explicit button; proposal rechecked and stored result verified | Only edits KIN's local record |
 | Rule-based questions | Recognize common schedule, conflict, available-time and rescheduling questions | Not a general-purpose conversational model |
 | Daily briefing | Can produce a local rule-built summary | Less flexible language than AI explanations |
@@ -33,8 +33,9 @@ Python and SQLite handle the planner. **No AI request is made when the provider 
 - **Protected** commitments reserve time and block proposed alternative slots.
 - **Flexible** routines can be suggested for movement; KIN never changes them silently.
 - The optional spacing buffer is a user preference, not a commute prediction.
-- Suggestions consider only one selected workspace. A candidate may still collide with events elsewhere. No claim of complete conflict elimination is made.
-- Repeating routines are **separate saved events**, not subscriptions or synchronized series. The demo does not currently support pausing/editing an entire series at once.
+- Suggested alternatives now consider **all workspaces in your own KIN guest profile by default**, or the selected workspace if you untick the toggle. External calendars, other people's records and unentered tasks are not considered. No claim of complete conflict elimination is made.
+- Repeating routines are **separate saved events**, not subscriptions or synchronized recurrence rules. Use **Planner → Edit routines** to preview updates or cancellations for one occurrence, selected-and-future occurrences or the entire saved series. Canceled entries remain in the local archive. Bulk changes are applied atomically after approval, with stale-preview and duplicate checks.
+- KIN shows cross-workspace overlaps only within the current guest profile. Nothing is shared with a university, an employer or other users.
 - DST-invalid local times are refused rather than silently adjusted.
 - Calendar entries may include **fictional October 2026 demonstration data**. The home screen now follows the actual Michigan calendar date, and manual entry defaults to today.
 
@@ -54,7 +55,7 @@ Do not enter personal or OU-restricted records in public GitHub issues. Do not c
 
 ## Planned, not shipped
 
-OS-level alarms and push notifications, real voice assistant, passkey/email accounts, encrypted local-first storage, cross-workspace planning, true recurring-series editing, Moodle, OU mail/calendar sync, and a production OU pilot are separately tracked in the [Development Hub](DEVELOPMENT_HUB.md). See [Roadmap](ROADMAP.md).
+OS-level alarms and push notifications, real voice assistant, passkey/email accounts, encrypted local-first storage, full RRULE recurrence exceptions and pause/resume, Moodle, OU mail/calendar sync, and a production OU pilot are separately tracked in the [Development Hub](DEVELOPMENT_HUB.md). See [Roadmap](ROADMAP.md).
 
 ## Verify locally
 

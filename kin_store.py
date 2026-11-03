@@ -230,6 +230,65 @@ def find_duplicate(title: str, start: str, workspace_id: str | None) -> dict[str
     return None
 
 
+
+def save_commitments_if_unchanged(
+    originals: list[dict[str, Any]], replacements: list[dict[str, Any]]
+) -> bool:
+    """Atomically apply an explicitly approved batch if the preview is still current.
+
+    Fail closed on any stale original, unexpected ID/workspace change, invalid
+    times or duplicate title/start in a workspace. This API is for editing
+    existing local records only, never for an external calendar.
+    """
+    from kin_core import parse_dt
+
+    if not originals or len(originals) != len(replacements) or len(originals) > 84:
+        return False
+    old = {c.get("id"): c for c in originals}
+    new = {c.get("id"): c for c in replacements}
+    if None in old or len(old) != len(originals) or set(old) != set(new):
+        return False
+
+    try:
+        for key, candidate in new.items():
+            existing = old[key]
+            if (candidate.get("workspace_id") != existing.get("workspace_id")
+                    or candidate.get("series_id") != existing.get("series_id")
+                    or candidate.get("origin") != "manual"
+                    or existing.get("origin") != "manual"):
+                return False
+            if not 1 <= len(candidate["title"].strip()) <= 100:
+                return False
+            first, last = parse_dt(candidate["start"]), parse_dt(candidate["end"])
+            if not first < last:
+                return False
+    except (TypeError, ValueError, KeyError, AttributeError):
+        return False
+
+    with _conn() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+        rows = conn.execute("SELECT id, workspace_id, payload FROM commitments").fetchall()
+        actual = {row["id"]: json.loads(row["payload"]) for row in rows}
+        if not all(actual.get(key) == snapshot for key, snapshot in old.items()):
+            return False
+
+        # The UI's normal duplicate rule is title + start in one workspace.
+        seen: set[tuple[Any, str, str]] = set()
+        for key, stored in actual.items():
+            item = new.get(key, stored)
+            signature = (item.get("workspace_id"), item["title"].strip(), item["start"])
+            if signature in seen:
+                return False
+            seen.add(signature)
+
+        for key, candidate in new.items():
+            conn.execute(
+                "UPDATE commitments SET payload = ? WHERE id = ?",
+                (json.dumps(candidate), key),
+            )
+    return True
+
+
 # -------------------------------------------------------------------- actions
 def list_actions(limit: int = 100) -> list[dict[str, Any]]:
     with _conn() as c:

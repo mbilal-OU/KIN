@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Verify Python syntax
-        run: python -m compileall -q app.py kin_core.py kin_life.py kin_models.py kin_ai.py kin_store.py
+        run: python -m compileall -q app.py kin_core.py kin_life.py kin_routines.py kin_models.py kin_ai.py kin_store.py
       - name: Run automated offline tests
         run: python -m pytest -q
       - name: Start the actual Streamlit server and check its health
