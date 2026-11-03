@@ -42,7 +42,7 @@ Python and SQLite handle the planner. **No AI request is made when the provider 
 
 - `KIN_AI_PROVIDER=off` (default in example): **No AI requests**; deterministic planner and answers.
 - `KIN_AI_PROVIDER=ollama`: Optional local Gemma model; no per-request hosted API charge, but requires computing resources.
-- `KIN_AI_PROVIDER=gemini`: Optional hosted Gemma 4 via the Gemini API. Requires your own credentials, an eligible model and acceptance of current terms. **Free tier and quotas are not guaranteed**, and this is not OU's Gemini chat entitlement.
+- `KIN_AI_PROVIDER=gemini`: Optional hosted Gemma 4 via the Gemini API. First install `python -m pip install -r requirements-ai.txt`, then supply your own credentials. An eligible model and acceptance of current terms are required. **Free tier and quotas are not guaranteed**, and this is not OU's Gemini chat entitlement.
 
 Current KIN uses **Gemma 4 via the Gemini API** as an optional model backend. It does not automatically have access to Google's separate Gemini models merely because OU offers the Gemini chat app.
 
