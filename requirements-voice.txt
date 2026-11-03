@@ -1,0 +1,4 @@
+# Optional local speech-to-text. Base KIN requires neither this nor an AI key.
+# faster-whisper runs on CPU in int8 mode; a speech model downloads on first use.
+-r requirements.txt
+faster-whisper>=1.1,<3

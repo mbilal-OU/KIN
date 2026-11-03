@@ -11,7 +11,7 @@
 5. Open **Planner → Resolve conflicts** for suggested available time slots.
 6. Ask basic questions such as "Do I have conflicts?", "What is next?", or "When am I free?" in **Ask the assistant**. These answers are local, deterministic, and limited to stored workspace data.
 
-Python and SQLite handle the planner. **No AI request is made when the provider is off.**
+Python and SQLite handle the planner. **No hosted AI request is made when the provider is off.** Optional offline speech recognition uses a local model and computing resources. See [Voice assistant setup](VOICE.md).
 
 ## What's implemented
 
@@ -24,6 +24,7 @@ Python and SQLite handle the planner. **No AI request is made when the provider 
 | Conflict suggestions | Find free slots for a **flexible** event across KIN workspaces by default (optional toggle) | Only 7 AM–10 PM; next 3, 7 or 14 days; no travel ETA or priority inference |
 | Move approval | Explicit button; proposal rechecked and stored result verified | Only edits KIN's local record |
 | Rule-based questions | Recognize common schedule, conflict, available-time and rescheduling questions | Not a general-purpose conversational model |
+| Optional local voice | Push-to-talk, inspect transcript, deterministic conflict suggestions, and spoken replies | Needs `requirements-voice.txt`, eSpeak NG and browser HTTPS/localhost; not a wake word, not hands-free and not a calendar write |
 | Daily briefing | Can produce a local rule-built summary | Less flexible language than AI explanations |
 | AI privacy | External AI schedule sharing is **off by default** for new profiles | Cloud AI remains opt-in and not suitable for sensitive data without further review |
 

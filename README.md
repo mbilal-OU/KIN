@@ -48,6 +48,7 @@ The next iteration adds useful **no-AI-required** features while keeping the ori
 - **Cross-workspace awareness:** find clashes between school, work and personal KIN workspaces; alternative slots consider all of your KIN workspaces by default. No external calendars are read.
 - **Resolve conflicts:** rule-based suggestions for alternative time slots for flexible items, with explicit approval and read-back verification. Only the selected workspace is checked; no OU or employer schedule is changed.
 - **Local planning Q&A and daily briefings:** common questions work with `KIN_AI_PROVIDER=off`, with no AI API requests or key. Gemma 4 is optional.
+- **Voice assistant (opt-in):** push-to-talk, review speech recognition, ask KIN to explain conflicts or suggest free slots, and hear spoken replies using optional **local** Whisper + eSpeak NG. Voice commands **cannot approve or save calendar changes**. Requires optional installation and HTTPS or localhost for microphone access. [Voice setup](docs/VOICE.md).
 - **Privacy-first default:** schedule detail sharing with external AI is opt-in for new profiles. This is still an unencrypted, guest-mode prototype and must not be used for private production records.
 
 The home view and new manual dates now use the current Michigan day. The October 2026 fictional sample timetable is deliberately preserved for historical demonstration.

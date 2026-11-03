@@ -29,6 +29,7 @@ from kin_life import (
     default_scheduling_mode, suggest_alternative_slots,
 )
 from kin_routines import EDIT_SCOPES, cross_workspace_conflicts, preview_routine_changes
+from kin_voice import VoiceUnavailable, local_voice_answer, synthesize_local, transcribe_local
 from kin_core import (
     assess_alerts, assess_opportunities, detect_internal_conflicts, find_free_windows,
     parse_dt, sample_commitments, simulate_change, simulated_alert, validate_event_proposal,
@@ -131,7 +132,8 @@ st.markdown(theme.css(st.session_state["theme_mode"]), unsafe_allow_html=True)
 for key, default in (("pending_action", None), ("weather", None), ("extracted", None),
                      ("extract_provider", ""), ("ics_preview", None), ("sim_result", None),
                      ("briefing", None), ("qa_history", []),
-                     ("pending_routine", None)):
+                     ("pending_routine", None), ("voice_review_text", ""),
+                     ("voice_answer", None), ("voice_playback", None)):
     st.session_state.setdefault(key, default)
 
 
@@ -1428,6 +1430,79 @@ elif screen == "Ask the assistant":
             st.markdown(f"**{companion}:** {a}")
             st.markdown(theme.badge(provider, "live" if ok else "blocked"),
                         unsafe_allow_html=True)
+
+    st.divider()
+    st.markdown("### 🎙️ Talk with KIN — local prototype")
+    st.caption(
+        "Push-to-talk only: no always-on microphone or wake word. "
+        "The recording is uploaded to the KIN server for local transcription, "
+        "not sent to a paid speech API. An optional offline speech model must "
+        "be installed on that server. Microphone recording requires HTTPS or "
+        "localhost, plus your browser's microphone permission.")
+    st.caption(
+        "Example: 'How can I resolve my schedule conflict?' or "
+        "'Move my gym session.' KIN suggests times across your KIN workspaces, "
+        "but **never changes the schedule from a voice command**.")
+
+    recorded_audio = st.audio_input(
+        "Record a short voice request (30 seconds maximum)",
+        key="kin_push_to_talk")
+    if st.button("Transcribe locally", disabled=recorded_audio is None):
+        try:
+            recognized = transcribe_local(recorded_audio.getvalue())
+        except (ValueError, VoiceUnavailable, RuntimeError) as exc:
+            st.error(str(exc))
+        except Exception as exc:  # noqa: BLE001 - optional speech backend may fail
+            st.error(f"Local speech recognition was unavailable ({type(exc).__name__}). "
+                     "You can type the command below instead.")
+        else:
+            st.session_state["voice_review_text"] = recognized
+            st.session_state["voice_answer"] = None
+            st.session_state["voice_playback"] = None
+            st.rerun()
+
+    with st.form("review_voice_request"):
+        reviewed_voice_text = st.text_area(
+            "Review the recognized words or type a request",
+            key="voice_review_text", max_chars=500,
+            help="Always review speech recognition before using the command.")
+        ask_local_voice = st.form_submit_button(
+            "Ask KIN using local rules", type="primary")
+    if ask_local_voice:
+        try:
+            voice_result = local_voice_answer(
+                reviewed_voice_text, commitments, all_my_commitments)
+        except (ValueError, TypeError) as exc:
+            st.error(str(exc))
+        else:
+            st.session_state["voice_answer"] = voice_result
+            st.session_state["voice_playback"] = None
+
+    voice_result = st.session_state.get("voice_answer")
+    if voice_result:
+        st.markdown(f"**{companion} says:**")
+        st.write(voice_result["answer"])
+        if voice_result.get("suggestions"):
+            st.caption(
+                "These are proposals only. Open Planner → Resolve conflicts "
+                "for the selected KIN workspace to verify and approve a time.")
+            for slot in voice_result["suggestions"]:
+                st.write(f"• {span(slot['start'], slot['end'])}")
+        if st.button("🔊 Read this answer aloud (offline)"):
+            try:
+                st.session_state["voice_playback"] = synthesize_local(
+                    voice_result["answer"])
+            except (ValueError, VoiceUnavailable) as exc:
+                st.error(str(exc))
+        if st.session_state.get("voice_playback"):
+            st.audio(st.session_state["voice_playback"], format="audio/wav")
+
+    st.caption(
+        "Voice limitations: recorded audio stays in the browser widget until "
+        "you clear it and is processed by the KIN host; transcription and "
+        "spoken audio are temporary. Do not use real private university or "
+        "health records in the public prototype. A spoken request cannot "
+        "approve a change, send a message, or verify an OU closure.")
 
 
 # ======================================================================

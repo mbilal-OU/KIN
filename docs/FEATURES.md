@@ -27,6 +27,7 @@ This section supplements, rather than rewrites, the original hackathon verificat
 | Cross-workspace conflict visibility | WORKING AND VERIFIED | On Today, reports clashes across guest-profile workspaces; Resolve conflicts can consider other local workspaces |
 | Free-first local questions | WORKING AND VERIFIED | Basic schedule, overlap, available-time, and rescheduling questions; not arbitrary conversation |
 | Local daily briefing | WORKING AND VERIFIED | Rule-built summary with no model request when AI is off |
+| Voice assistant prototype | PARTIALLY IMPLEMENTED | Push-to-talk microphone, optional local Whisper transcription and eSpeak spoken reply, voice-directed rule-based conflict suggestions; CI uses fake speech engines; actual microphone and local CPU model quality still need device testing and HTTPS deployment |
 | AI privacy default | PARTIALLY IMPLEMENTED | New profiles opt out of schedule sharing by default; protected external AI context is minimized, but current guest storage is **not encrypted** |
 | OU email, calendar, Moodle, or SSO | BLOCKED BY EXTERNAL ACCESS | Not connected; formal approval and security review required |
 | OS alarms, wake word, push notifications, secure personal cloud sync | NOT IMPLEMENTED | Future roadmap tasks |
