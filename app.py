@@ -86,7 +86,9 @@ def _bind_session_database() -> None:
 
 OU_CLOSING = "https://www.oakland.edu/police/emergency-management/campus-closings/"
 NWS_DOCS = "https://www.weather.gov/documentation/services-web-api"
-# The fictional sample data remains dated October 2026, but a real user's\n# daily planner must follow today's actual Michigan date.\nDEMO_TODAY = datetime.now(MICHIGAN).replace(hour=0, minute=0, second=0, microsecond=0)
+# The fictional sample data remains dated October 2026, but a real user's
+# daily planner must follow today's actual Michigan date.
+DEMO_TODAY = datetime.now(MICHIGAN).replace(hour=0, minute=0, second=0, microsecond=0)
 
 st.set_page_config(page_title="KIN | Kinetic Intelligence Network",
                    page_icon=theme.icon_image() or "\U0001F9ED",
