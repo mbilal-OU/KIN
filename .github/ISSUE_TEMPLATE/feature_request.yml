@@ -1,0 +1,61 @@
+name: "Feature / Idea"
+description: "Record a new KIN feature or product idea"
+title: "[Idea] "
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks for helping shape KIN. Please do not include private schedules, OU credentials, tokens, or sensitive personal information in this public issue."
+  - type: textarea
+    id: problem
+    attributes:
+      label: "What problem should KIN solve?"
+      description: "Describe the user need, not just the solution."
+      placeholder: "As a student or everyday user, I need..."
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Suggested feature or behavior"
+      placeholder: "KIN should..."
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: "Feature area"
+      options:
+        - "Life scheduling and routines"
+        - "Conflict resolution"
+        - "Voice assistant"
+        - "Alarms, timers and reminders"
+        - "Privacy and security"
+        - "OU integration (requires approval)"
+        - "Mobile / user experience"
+        - "Other"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Suggested priority"
+      options:
+        - "Untriaged"
+        - "P0 - Core foundation"
+        - "P1 - Next"
+        - "P2 - Later"
+  - type: textarea
+    id: privacy
+    attributes:
+      label: "Privacy, data and permissions"
+      description: "What data would this feature need, and who should be allowed to access it?"
+  - type: textarea
+    id: criteria
+    attributes:
+      label: "Acceptance criteria"
+      description: "What should be demonstrably true when this feature is complete?"
+      placeholder: "- [ ] ..."
+  - type: textarea
+    id: notes
+    attributes:
+      label: "Additional context / references"
