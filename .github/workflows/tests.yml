@@ -1,0 +1,33 @@
+name: KIN tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      KIN_AI_PROVIDER: "off"
+      GEMINI_API_KEY: "replace_with_your_own_key"
+      KIN_HOSTED: "false"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Verify Python syntax
+        run: python -m compileall -q app.py kin_core.py kin_life.py kin_models.py kin_ai.py kin_store.py
+      - name: Run automated offline tests
+        run: python -m pytest -q
