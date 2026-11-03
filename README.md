@@ -36,7 +36,7 @@ events clash, and it never decides whether a class is canceled.
 
 ## Explore KIN
 
-[**Open live demo**](http://141.210.133.171:8501/) | [**How it works**](#how-kin-works) | [**Technology**](#technology-we-used) | [**Demo walkthrough**](#try-the-demo) | [**Tests**](#tests) | [**Trust and limitations**](#honest-limitations)
+[**Open live demo**](http://141.210.133.171:8501/) | [**How it works**](#how-kin-works) | [**Technology**](#technology-we-used) | [**Demo walkthrough**](#try-the-demo) | [**Tests**](#tests) | [**Trust and limitations**](#honest-limitations) | [**Ideas, Tasks & Roadmap**](docs/DEVELOPMENT_HUB.md)
 
 ## How KIN works
 
