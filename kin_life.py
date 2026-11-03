@@ -30,11 +30,11 @@ def _wall_time(day: date, clock: time) -> datetime:
     naive = datetime.combine(day, clock.replace(tzinfo=None))
     aware = naive.replace(tzinfo=MICHIGAN)
     alternate = naive.replace(tzinfo=MICHIGAN, fold=1)
-    if aware.utcoffset() != alternate.utcoffset():
-        raise ValueError("The selected local time is ambiguous during a daylight-saving change")
     roundtrip = aware.astimezone(timezone.utc).astimezone(MICHIGAN)
     if roundtrip.replace(tzinfo=None) != naive:
         raise ValueError("The selected local time does not exist during a daylight-saving change")
+    if aware.utcoffset() != alternate.utcoffset():
+        raise ValueError("The selected local time is ambiguous during a daylight-saving change")
     return aware
 
 
