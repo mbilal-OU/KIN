@@ -1446,7 +1446,7 @@ elif screen == "Ask the assistant":
 
     recorded_audio = st.audio_input(
         "Record a short voice request (30 seconds maximum)",
-        sample_rate=16000, key="kin_push_to_talk")
+        key="kin_push_to_talk")
     if st.button("Transcribe locally", disabled=recorded_audio is None):
         try:
             recognized = transcribe_local(recorded_audio.getvalue())
