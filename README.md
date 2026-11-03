@@ -198,7 +198,7 @@ GEMINI_API_KEY=your_own_key_from_aistudio_google_com
 KIN_GEMMA_MODEL=gemma-4-26b-a4b-it
 ```
 
-Provider pricing, free-tier limits and data handling vary. OU's Gemini chat access is not KIN API authorization.
+Provider pricing, free-tier limits and data handling vary. OU's Gemini chat access is not KIN API authorization. **If enabling hosted Gemma 4, first install the optional SDK with `python -m pip install -r requirements-ai.txt`.** The default `requirements.txt` intentionally does not install an AI SDK.
 
 **Fully local alternative** , nothing leaves your machine:
 
