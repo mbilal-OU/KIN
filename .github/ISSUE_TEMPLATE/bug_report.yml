@@ -1,0 +1,41 @@
+name: "Bug report"
+description: "Report a reproducible KIN problem"
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "This repository is public. Do not paste personal schedules, passwords, access tokens, private email or voice transcripts. Redact screenshots and logs."
+  - type: textarea
+    id: bug
+    attributes:
+      label: "What went wrong?"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to reproduce"
+      placeholder: "1. Open ...\n2. Select ...\n3. Observe ..."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected behavior"
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: "Actual behavior"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: "KIN version / branch / environment"
+      placeholder: "main, browser or device, if known"
+  - type: textarea
+    id: evidence
+    attributes:
+      label: "Sanitized logs or screenshots (optional)"
