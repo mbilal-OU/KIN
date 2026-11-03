@@ -8,7 +8,28 @@ Status labels follow the implementation directive:
 - **NOT IMPLEMENTED** — deliberately not built
 - **BLOCKED BY EXTERNAL ACCESS** — needs authorization this project lacks
 
-Last verified: 30 October 2026, 129 automated tests + 10 live checks passing.
+Last verified for the original hackathon build: 30 October 2026, 129 automated tests + 10 live checks passing.
+
+---
+
+## November 2026: free-first life-planning expansion
+
+This section supplements, rather than rewrites, the original hackathon verification. The expanded functionality is independent of Oakland University access and does not require a paid AI model.
+
+| Feature | Status | What actually works / limitation |
+|---|---|---|
+| No-cost AI-off mode | WORKING AND VERIFIED | `KIN_AI_PROVIDER=off` makes no model requests; optional Google SDK moved to `requirements-ai.txt` |
+| Manual repeat entry | WORKING AND VERIFIED | Daily, weekdays or weekly occurrences for 1–12 weeks are stored as separate events, with DST checks; **not** full RRULE/series editing |
+| Scheduling mode | WORKING AND VERIFIED | Stored records can be marked fixed, flexible or protected; previous records default to fixed |
+| Alternative-slot suggestions | PARTIALLY IMPLEMENTED | Rule-checked candidate times for flexible events, selected workspace only; no cross-workspace scheduling or real travel estimation |
+| Approval-gated rescheduling | WORKING AND VERIFIED | User approves a proposed move; KIN rechecks it and verifies the stored result |
+| Free-first local questions | WORKING AND VERIFIED | Basic schedule, overlap, available-time, and rescheduling questions; not arbitrary conversation |
+| Local daily briefing | WORKING AND VERIFIED | Rule-built summary with no model request when AI is off |
+| AI privacy default | PARTIALLY IMPLEMENTED | New profiles opt out of schedule sharing by default; protected external AI context is minimized, but current guest storage is **not encrypted** |
+| OU email, calendar, Moodle, or SSO | BLOCKED BY EXTERNAL ACCESS | Not connected; formal approval and security review required |
+| OS alarms, wake word, push notifications, secure personal cloud sync | NOT IMPLEMENTED | Future roadmap tasks |
+
+See [Free-first setup](FREE_FIRST.md), [Development Hub](DEVELOPMENT_HUB.md), and [Roadmap](ROADMAP.md).
 
 ---
 
