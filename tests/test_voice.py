@@ -141,7 +141,8 @@ def test_fixed_events_are_not_rescheduled_by_voice():
         now=datetime.fromisoformat("2026-11-03T08:00:00-05:00"))
     assert not result["suggestions"]
     assert result["target_id"] is None
-    assert "can't move a fixed class" in result["answer"]
+    assert "fixed or protected" in result["answer"]
+    assert "haven't changed anything" in result["answer"]
 
 
 def test_open_ended_questions_fall_back_to_local_rules():
