@@ -28,6 +28,7 @@ from kin_life import (
     REPEAT_RULES, SCHEDULING_MODES, answer_with_rules, build_manual_occurrences,
     default_scheduling_mode, suggest_alternative_slots,
 )
+from kin_routines import EDIT_SCOPES, cross_workspace_conflicts, preview_routine_changes
 from kin_core import (
     assess_alerts, assess_opportunities, detect_internal_conflicts, find_free_windows,
     parse_dt, sample_commitments, simulate_change, simulated_alert, validate_event_proposal,
@@ -129,7 +130,8 @@ st.markdown(theme.css(st.session_state["theme_mode"]), unsafe_allow_html=True)
 
 for key, default in (("pending_action", None), ("weather", None), ("extracted", None),
                      ("extract_provider", ""), ("ics_preview", None), ("sim_result", None),
-                     ("briefing", None), ("qa_history", [])):
+                     ("briefing", None), ("qa_history", []),
+                     ("pending_routine", None)):
     st.session_state.setdefault(key, default)
 
 
@@ -301,6 +303,7 @@ with st.sidebar:
     st.caption("Guest mode. No OU login. Fictional data only.")
 
 commitments = store.list_commitments(workspace["id"])
+all_my_commitments = store.list_commitments()
 companion = display_assistant(workspace, preferences)
 st.markdown(theme.masthead(f"{workspace['name']} workspace · guest mode"), unsafe_allow_html=True)
 
@@ -389,6 +392,18 @@ if screen == "Today":
                     badges=tags))
             st.markdown(theme.timeline(rows), unsafe_allow_html=True)
 
+        cross_conflicts = cross_workspace_conflicts(all_my_commitments)
+        if cross_conflicts:
+            st.markdown(theme.section("🔀", "Conflicts across your KIN workspaces"),
+                        unsafe_allow_html=True)
+            names_by_id = {w["id"]: w["name"] for w in workspaces}
+            for pair in cross_conflicts[:6]:
+                a_name = names_by_id.get(pair["a_workspace_id"], "Another workspace")
+                b_name = names_by_id.get(pair["b_workspace_id"], "Another workspace")
+                st.warning(f"{pair['a']} ({a_name}) overlaps {pair['b']} ({b_name}).")
+            st.caption("This private comparison stays within your current KIN guest "
+                       "profile. It does not connect to or notify university systems.")
+
         if conflicts:
             st.markdown(theme.section("⚡", "Clashes in your timetable"),
                         unsafe_allow_html=True)
@@ -472,9 +487,9 @@ elif screen == "Planner":
     st.subheader("Academic & life planner")
     st.caption("Everything here is stored locally on this machine. No university system is connected.")
 
-    tab_list, tab_add, tab_resolve, tab_ai, tab_ics, tab_sim = st.tabs(
-        ["Timetable", "Add manually", "Resolve conflicts", "Extract with Gemma 4",
-         "Import / export .ics", "What-if"])
+    tab_list, tab_add, tab_edit, tab_resolve, tab_ai, tab_ics, tab_sim = st.tabs(
+        ["Timetable", "Add manually", "Edit routines", "Resolve conflicts",
+         "Extract with Gemma 4", "Import / export .ics", "What-if"])
 
     # ------------------------------------------------------------- list
     with tab_list:
@@ -648,15 +663,125 @@ elif screen == "Planner":
                     else:
                         st.warning(f"All {skipped} occurrence(s) were already scheduled.")
 
+    # ------------------------------------------ recurrence editing and cancellation
+    with tab_edit:
+        st.caption("Edit or cancel manual KIN entries, one occurrence or a series. "
+                   "This edits only KIN's stored records, never classes or shifts in "
+                   "an external system. Review the proposed changes before approval.")
+        editable = [c for c in commitments if c.get("origin") == "manual"]
+        if not editable:
+            st.info("Add a manual commitment or repeating routine to edit it here.")
+        else:
+            labels = {
+                c["id"]: f"{c['title']} — {span(c['start'], c['end'])}"
+                for c in editable
+            }
+            chosen_id = st.selectbox(
+                "Manual commitment to edit", list(labels),
+                format_func=lambda key: labels[key])
+            original_event = next(c for c in editable if c["id"] == chosen_id)
+            scopes = EDIT_SCOPES if original_event.get("series_id") else (EDIT_SCOPES[0],)
+            scope = st.selectbox("Apply to", scopes,
+                                 help="This and later uses the selected occurrence as the starting point.")
+            current_start = parse_dt(original_event["start"]).astimezone(MICHIGAN)
+            current_end = parse_dt(original_event["end"]).astimezone(MICHIGAN)
+            with st.form("edit_routine"):
+                new_title = st.text_input(
+                    "Updated title", value=original_event["title"], max_chars=100)
+                c1, c2 = st.columns(2)
+                new_start = c1.time_input(
+                    "New start time", value=current_start.time().replace(tzinfo=None))
+                new_end = c2.time_input(
+                    "New end time", value=current_end.time().replace(tzinfo=None))
+                current_mode = original_event.get("scheduling_mode", "fixed")
+                new_mode = st.selectbox(
+                    "Updated flexibility", SCHEDULING_MODES,
+                    index=SCHEDULING_MODES.index(current_mode)
+                    if current_mode in SCHEDULING_MODES else 0)
+                new_notes = st.text_area(
+                    "Updated notes", value=original_event.get("notes", ""), max_chars=2000)
+                p1, p2 = st.columns(2)
+                preview_edit = p1.form_submit_button("Preview edit", type="primary")
+                preview_cancel = p2.form_submit_button("Preview cancellation")
+            if preview_edit or preview_cancel:
+                try:
+                    old_rows, proposed_rows = preview_routine_changes(
+                        commitments, chosen_id, scope,
+                        title=new_title, start_time=new_start, end_time=new_end,
+                        mode=new_mode, notes=new_notes, cancel=preview_cancel)
+                    st.session_state["pending_routine"] = {
+                        "workspace_id": workspace["id"],
+                        "target_id": chosen_id,
+                        "old": old_rows,
+                        "new": proposed_rows,
+                        "action": "cancel" if preview_cancel else "edit",
+                    }
+                except ValueError as exc:
+                    st.session_state["pending_routine"] = None
+                    st.error(str(exc))
+
+            pending = st.session_state.get("pending_routine")
+            if (pending and pending["workspace_id"] == workspace["id"]
+                    and pending["target_id"] == chosen_id):
+                proposed = pending["new"]
+                st.info(f"Preview: {len(proposed)} occurrence(s) would be "
+                        f"{'canceled' if pending['action'] == 'cancel' else 'updated'}. "
+                        "No changes have been saved.")
+                for item in proposed[:5]:
+                    st.write(f"• {item['title']} — {span(item['start'], item['end'])} "
+                             f"({item.get('status', 'planned')})")
+                if len(proposed) > 5:
+                    st.caption(f"... and {len(proposed) - 5} additional occurrence(s).")
+                actions = st.columns(2)
+                approve_label = ("Approve cancellation" if pending["action"] == "cancel"
+                                 else "Approve edits")
+                if actions[0].button(approve_label, type="primary"):
+                    committed = store.save_commitments_if_unchanged(
+                        pending["old"], pending["new"])
+                    if not committed:
+                        st.error("Approval was not applied. The timetable may have changed "
+                                 "or a duplicate would be created. Preview again.")
+                        st.session_state["pending_routine"] = None
+                    else:
+                        saved = {c["id"]: c for c in store.list_commitments(workspace["id"])}
+                        verified = all(saved.get(c["id"]) == c for c in pending["new"])
+                        record_action(dict(make_action(
+                            "UPDATE_LOCAL_EVENT",
+                            f"{pending['action'].capitalize()} {len(proposed)} "
+                            f"routine occurrence(s)",
+                            {"ids": [c["id"] for c in proposed]},
+                            "User explicitly approved a local routine batch."),
+                            status=ACTION_VERIFIED if verified else "FAILED",
+                            verified=verified,
+                            result=("All modified records verified after save."
+                                    if verified else "Could not verify all saved changes.")))
+                        st.session_state["pending_routine"] = None
+                        if verified:
+                            st.success("Routine changes saved and verified locally.")
+                            st.rerun()
+                        else:
+                            st.error("Some changes could not be verified.")
+                if actions[1].button("Discard preview"):
+                    st.session_state["pending_routine"] = None
+                    st.rerun()
+
     # ------------------------------------------ rule-based conflict resolution
     with tab_resolve:
-        st.caption("No AI or paid API needed. Suggestions consider only this workspace, "
-                   "your chosen time window, and stored commitments. They are not "
-                   "verified travel estimates or permission to move official classes "
-                   "or employer shifts. Nothing changes until you approve.")
-        clashes = detect_internal_conflicts(commitments)
+        st.caption("No AI or paid API needed. KIN checks local commitments, "
+                   "not external university or employer calendars. Suggested "
+                   "times are not travel estimates; approval is required.")
+        include_other = st.checkbox(
+            "Consider my other KIN workspaces", value=True,
+            help="Keep private school, work and life schedules separate, "
+                 "but respect them when suggesting available time.")
+        pool = all_my_commitments if include_other else commitments
+        current_ids = {c["id"] for c in commitments}
+        clashes = [
+            pair for pair in detect_internal_conflicts(pool)
+            if pair["a_id"] in current_ids or pair["b_id"] in current_ids
+        ]
         if clashes:
-            st.warning(f"{len(clashes)} overlap(s) detected in this workspace.")
+            st.warning(f"{len(clashes)} overlap(s) detected affecting this workspace.")
             for clash in clashes[:5]:
                 st.write(f"• {clash['a']} overlaps {clash['b']}")
         else:
@@ -682,7 +807,7 @@ elif screen == "Planner":
             spacing = r2.selectbox(
                 "Optional spacing around travel (minutes)", [0, 15, 30, 45], index=0)
             options = suggest_alternative_slots(
-                commitments, target_id, days_ahead=horizon,
+                pool, target_id, days_ahead=horizon,
                 buffer_minutes=spacing, not_before=datetime.now(MICHIGAN))
             if not options:
                 st.info("No conflict-free alternative was found in the selected window. "
@@ -696,7 +821,8 @@ elif screen == "Planner":
                     if right.button(
                         "Approve this time", key=f"approve-move-{target_id}-{option['start']}",
                         use_container_width=True):
-                        latest = store.list_commitments(workspace["id"])
+                        latest = (store.list_commitments() if include_other
+                                  else store.list_commitments(workspace["id"]))
                         valid = suggest_alternative_slots(
                             latest, target_id, days_ahead=horizon,
                             buffer_minutes=spacing, not_before=datetime.now(MICHIGAN))
