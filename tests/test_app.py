@@ -480,8 +480,12 @@ class TestWithFullDataset:
         assert not loaded.exception
         captions = " ".join(c.value for c in loaded.caption)
         assert "commitment(s) in this workspace" in captions
-        # At most PAGE rows become editable widgets.
-        assert len(loaded.selectbox) < 40
+        # Each paginated row now has Status and Flexibility controls.
+        # The page still renders at most 25 rows, rather than a full semester.
+        row_widgets = [box for box in loaded.selectbox
+                       if box.label in ("Status", "Flexibility")]
+        assert len(row_widgets) <= 2 * 25
+        assert len(loaded.selectbox) < 65
 
     def test_planner_search_narrows_the_list(self, loaded):
         _goto(loaded, "Planner")
