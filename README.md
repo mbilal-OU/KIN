@@ -44,6 +44,8 @@ The next iteration adds useful **no-AI-required** features while keeping the ori
 
 - **Manual repeating routines:** once, daily, weekdays or weekly, up to 12 weeks. These are expanded into individual local events, not a full recurring-series manager.
 - **Fixed, flexible and protected** commitments. The user chooses what may be suggested for rescheduling.
+- **Edit routines:** preview and approve changing or canceling one, future, or all saved manual recurring entries, with atomic write protection against stale previews.
+- **Cross-workspace awareness:** find clashes between school, work and personal KIN workspaces; alternative slots consider all of your KIN workspaces by default. No external calendars are read.
 - **Resolve conflicts:** rule-based suggestions for alternative time slots for flexible items, with explicit approval and read-back verification. Only the selected workspace is checked; no OU or employer schedule is changed.
 - **Local planning Q&A and daily briefings:** common questions work with `KIN_AI_PROVIDER=off`, with no AI API requests or key. Gemma 4 is optional.
 - **Privacy-first default:** schedule detail sharing with external AI is opt-in for new profiles. This is still an unencrypted, guest-mode prototype and must not be used for private production records.
