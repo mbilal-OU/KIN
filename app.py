@@ -24,6 +24,10 @@ from kin_ai import (
     extract_commitment_from_text, provider_status, qa_fallback, safe_fallback,
 )
 from kin_calendar import export_ics, parse_ics
+from kin_life import (
+    REPEAT_RULES, SCHEDULING_MODES, build_manual_occurrences,
+    default_scheduling_mode, suggest_alternative_slots,
+)
 from kin_core import (
     assess_alerts, assess_opportunities, detect_internal_conflicts, find_free_windows,
     parse_dt, sample_commitments, simulate_change, simulated_alert, validate_event_proposal,
@@ -449,8 +453,9 @@ elif screen == "Planner":
     st.subheader("Academic & life planner")
     st.caption("Everything here is stored locally on this machine. No university system is connected.")
 
-    tab_list, tab_add, tab_ai, tab_ics, tab_sim = st.tabs(
-        ["Timetable", "Add manually", "Extract with Gemma 4", "Import / export .ics", "What-if"])
+    tab_list, tab_add, tab_resolve, tab_ai, tab_ics, tab_sim = st.tabs(
+        ["Timetable", "Add manually", "Resolve conflicts", "Extract with Gemma 4",
+         "Import / export .ics", "What-if"])
 
     # ------------------------------------------------------------- list
     with tab_list:
@@ -527,6 +532,27 @@ elif screen == "Planner":
                             status=ACTION_VERIFIED, verified=True,
                             result=f"Stored status is now {new_status}."))
                         st.rerun()
+                    current_mode = c.get("scheduling_mode", "fixed")
+                    mode = st.selectbox(
+                        "Flexibility", SCHEDULING_MODES,
+                        index=(SCHEDULING_MODES.index(current_mode)
+                               if current_mode in SCHEDULING_MODES else 0),
+                        key="flex-" + c["id"],
+                        help="Fixed: don't suggest moving. Flexible: offer new times. "
+                             "Protected: reserved personal time.")
+                    if mode != current_mode:
+                        c["scheduling_mode"] = mode
+                        store.save_commitment(c)
+                        verified = any(
+                            x["id"] == c["id"] and x.get("scheduling_mode") == mode
+                            for x in store.list_commitments(workspace["id"]))
+                        record_action(dict(make_action(
+                            "UPDATE_LOCAL_EVENT", f"Flexibility → {mode}: {c['title']}",
+                            {"id": c["id"]}, "User chose the scheduling mode."),
+                            status=ACTION_VERIFIED if verified else "FAILED",
+                            verified=verified, result="Read back from local store." if verified
+                            else "Could not verify the change."))
+                        st.rerun()
                 with cols[2]:
                     if st.button("Delete", key="del-" + c["id"]):
                         store.delete_commitment(c["id"])
@@ -539,41 +565,150 @@ elif screen == "Planner":
 
     # ------------------------------------------------------------- add
     with tab_add:
+        st.caption("Free-first: manual entry and routine repetition need no AI or university "
+                   "connection. Repeated dates are stored as individual local entries.")
         with st.form("manual_event"):
             c1, c2 = st.columns(2)
             title = c1.text_input("Title", "Work shift")
-            etype = c2.selectbox("Type", list(EVENT_TYPES),
-                                 format_func=lambda k: f"{EVENT_TYPES[k]['icon']} {EVENT_TYPES[k]['label']}",
-                                 index=list(EVENT_TYPES).index("work"))
+            etype = c2.selectbox(
+                "Type", list(EVENT_TYPES),
+                format_func=lambda k: f"{EVENT_TYPES[k]['icon']} {EVENT_TYPES[k]['label']}",
+                index=list(EVENT_TYPES).index("work"))
             c3, c4, c5 = st.columns(3)
-            day = c3.date_input("Date", value=DEMO_TODAY.date())
+            day = c3.date_input("Date", value=datetime.now(MICHIGAN).date())
             start_t = c4.time_input("Starts", value=time(17, 0))
             end_t = c5.time_input("Ends", value=time(21, 0))
+            c6, c7, c8 = st.columns(3)
+            mode = c6.selectbox(
+                "Scheduling flexibility", SCHEDULING_MODES,
+                index=SCHEDULING_MODES.index(default_scheduling_mode("work")),
+                help="Mark movable routines Flexible. Keep classes and employer shifts Fixed. "
+                     "Protected time is never automatically offered for rescheduling.")
+            repeat = c7.selectbox("Repeat", REPEAT_RULES)
+            weeks = c8.number_input("For how many weeks?", 1, 12, 1,
+                                    help="Ignored for Once. Maximum 12 weeks.")
             travel = st.checkbox("Requires travel (applies your planning buffer)",
                                  value=EVENT_TYPES["work"]["travel"])
             notes = st.text_input("Notes (optional)", "")
             if st.form_submit_button("Add to timetable", type="primary"):
-                start = datetime.combine(day, start_t, MICHIGAN)
-                end = datetime.combine(day, end_t, MICHIGAN)
-                if not title.strip():
-                    st.error("Enter a title.")
-                elif end <= start:
-                    st.error("The end time must be after the start time on the same day.")
-                elif store.find_duplicate(title, start.isoformat(), workspace["id"]):
-                    st.warning("An identical commitment already exists at that time.")
+                try:
+                    records = build_manual_occurrences(
+                        title, day, start_t, end_t,
+                        event_type=etype, requires_travel=travel,
+                        workspace_id=workspace["id"], scheduling_mode=mode,
+                        repeat=repeat, weeks=int(weeks), notes=notes)
+                except ValueError as exc:
+                    st.error(str(exc))
                 else:
-                    record = make_commitment(title, start.isoformat(), end.isoformat(),
-                                             event_type=etype, requires_travel=travel,
-                                             workspace_id=workspace["id"], origin="manual",
-                                             notes=notes)
-                    store.save_commitment(record)
-                    record_action(dict(make_action(
-                        "ADD_LOCAL_EVENT", f"Added: {title}", {"id": record["id"]},
-                        "User entered the commitment manually."),
-                        status=ACTION_VERIFIED, verified=True,
-                        result="Confirmed present in the local store."))
-                    st.success("Added. It is stored locally on this machine only.")
-                    st.rerun()
+                    added, skipped = [], 0
+                    for record in records:
+                        if store.find_duplicate(record["title"], record["start"],
+                                                workspace["id"]):
+                            skipped += 1
+                            continue
+                        store.save_commitment(record)
+                        added.append(record)
+                    if added:
+                        saved = {c["id"] for c in store.list_commitments(workspace["id"])}
+                        verified = all(record["id"] in saved for record in added)
+                        record_action(dict(make_action(
+                            "ADD_LOCAL_EVENT",
+                            f"Added {len(added)} occurrence(s): {title}",
+                            {"ids": [r["id"] for r in added], "repeat": repeat},
+                            "User entered and confirmed their manual routine."),
+                            status=ACTION_VERIFIED if verified else "FAILED",
+                            verified=verified, result=(
+                                f"{len(added)} of {len(records)} occurrences verified."
+                                if verified else "Could not verify all writes.")))
+                        if verified:
+                            st.success(f"Saved {len(added)} occurrence(s) locally. "
+                                       f"Skipped {skipped} duplicate(s).")
+                            st.rerun()
+                        else:
+                            st.error("KIN could not verify every saved occurrence.")
+                    else:
+                        st.warning(f"All {skipped} occurrence(s) were already scheduled.")
+
+    # ------------------------------------------ rule-based conflict resolution
+    with tab_resolve:
+        st.caption("No AI or paid API needed. Suggestions consider only this workspace, "
+                   "your chosen time window, and stored commitments. They are not "
+                   "verified travel estimates or permission to move official classes "
+                   "or employer shifts. Nothing changes until you approve.")
+        clashes = detect_internal_conflicts(commitments)
+        if clashes:
+            st.warning(f"{len(clashes)} overlap(s) detected in this workspace.")
+            for clash in clashes[:5]:
+                st.write(f"• {clash['a']} overlaps {clash['b']}")
+        else:
+            st.info("No current overlaps detected. You can still plan around busy times.")
+
+        available_to_move = [
+            c for c in commitments
+            if c.get("scheduling_mode", "fixed") == "flexible"
+            and c.get("status") not in ("completed", "canceled")
+            and parse_dt(c["end"]).astimezone(MICHIGAN) >= datetime.now(MICHIGAN)
+        ]
+        if not available_to_move:
+            st.info("Add an upcoming flexible routine, or change a commitment's "
+                    "Flexibility to 'flexible' in the Timetable tab to see suggestions.")
+        else:
+            move_labels = {c["id"]: f"{c['title']} — {span(c['start'], c['end'])}"
+                           for c in available_to_move[:80]}
+            target_id = st.selectbox(
+                "Flexible commitment to reschedule", list(move_labels),
+                format_func=lambda key: move_labels[key])
+            r1, r2 = st.columns(2)
+            horizon = r1.selectbox("Search upcoming days", [3, 7, 14], index=1)
+            spacing = r2.selectbox(
+                "Optional spacing around travel (minutes)", [0, 15, 30, 45], index=0)
+            options = suggest_alternative_slots(
+                commitments, target_id, days_ahead=horizon,
+                buffer_minutes=spacing, not_before=datetime.now(MICHIGAN))
+            if not options:
+                st.info("No conflict-free alternative was found in the selected window. "
+                        "Try widening the search or editing a fixed commitment yourself.")
+            for option in options:
+                with st.container(border=True):
+                    left, right = st.columns([3, 2])
+                    left.markdown(
+                        f"**{span(option['start'], option['end'])}**"
+                        f"  \\n\\nTime shift: {option['shift_minutes']:+} minutes")
+                    if right.button(
+                        "Approve this time", key=f"approve-move-{target_id}-{option['start']}",
+                        use_container_width=True):
+                        latest = store.list_commitments(workspace["id"])
+                        valid = suggest_alternative_slots(
+                            latest, target_id, days_ahead=horizon,
+                            buffer_minutes=spacing, not_before=datetime.now(MICHIGAN))
+                        if not any(x["start"] == option["start"] and
+                                   x["end"] == option["end"] for x in valid):
+                            st.error("The timetable changed or this time is no longer valid. "
+                                     "Review the updated suggestions.")
+                        else:
+                            moved = next(c for c in latest if c["id"] == target_id)
+                            before = (moved["start"], moved["end"])
+                            moved["start"], moved["end"] = option["start"], option["end"]
+                            store.save_commitment(moved)
+                            checked = next(
+                                (c for c in store.list_commitments(workspace["id"])
+                                 if c["id"] == target_id), None)
+                            verified = bool(checked and checked["start"] == option["start"]
+                                            and checked["end"] == option["end"])
+                            record_action(dict(make_action(
+                                "UPDATE_LOCAL_EVENT", f"Rescheduled: {moved['title']}",
+                                {"id": target_id, "previous": before,
+                                 "new": (option["start"], option["end"])},
+                                "User approved a deterministic free-slot suggestion."),
+                                status=ACTION_VERIFIED if verified else "FAILED",
+                                verified=verified,
+                                result="New times read back from local database."
+                                if verified else "Could not verify the stored change."))
+                            if verified:
+                                st.success("Approved and verified in your local timetable.")
+                                st.rerun()
+                            else:
+                                st.error("Could not verify the rescheduling.")
 
     # -------------------------------------------------------- extraction
     with tab_ai:
