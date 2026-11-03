@@ -187,3 +187,87 @@ def suggest_alternative_slots(
     candidates.sort(key=lambda item: (
         abs(item["shift_minutes"]), item["shift_minutes"] < 0, item["start"]))
     return candidates[:max_results]
+
+
+def answer_with_rules(
+    question: str, commitments: list[dict[str, Any]], *,
+    now: datetime | None = None,
+) -> str:
+    """Answer a few explicit planner questions without an AI call.
+
+    This deliberately does not pretend to understand arbitrary language. It
+    reads only the supplied workspace records and never claims live OU access.
+    """
+    from kin_core import detect_internal_conflicts, find_free_windows
+
+    q = (question or "").strip().lower()
+    if not 3 <= len(q) <= 500:
+        raise ValueError("Enter a question between 3 and 500 characters")
+    reference = now or datetime.now(MICHIGAN)
+    if reference.tzinfo is None:
+        raise ValueError("now must be timezone-aware")
+    reference = reference.astimezone(MICHIGAN)
+    live = [
+        c for c in commitments
+        if c.get("status") not in ("canceled", "completed")
+    ]
+    if any(token in q for token in ("conflict", "clash", "overlap")):
+        collisions = detect_internal_conflicts(live)
+        if not collisions:
+            return ("No overlapping commitments detected in this workspace. "
+                    "KIN does not check other calendars or university systems.")
+        rows = [f"- {c['a']} overlaps {c['b']}" for c in collisions[:5]]
+        return ("Detected scheduling overlaps (rule-based, not AI):\n" +
+                "\n".join(rows) +
+                "\nMark a movable commitment as Flexible, then open Resolve conflicts.")
+
+    if any(token in q for token in ("weather", "storm", "cancel", "closure", "closed")):
+        return ("KIN cannot confirm university class cancellations. Check the "
+                "Michigan Weather panel and Oakland University's official "
+                "campus closings page before making decisions.")
+
+    if any(token in q for token in ("free", "available", "open slot", "spare time")):
+        day = reference + (timedelta(days=1) if "tomorrow" in q else timedelta(0))
+        windows = find_free_windows(live, day, minimum_minutes=30)
+        if not windows:
+            return ("No free windows of at least 30 minutes were found between "
+                    "8 AM and 10 PM in this workspace.")
+        parts = []
+        for window in windows[:5]:
+            a = parse_dt(window["start"]).astimezone(MICHIGAN)
+            b = parse_dt(window["end"]).astimezone(MICHIGAN)
+            parts.append(f"- {a:%I:%M %p}–{b:%I:%M %p}")
+        return ("Available windows (stored workspace only; travel not verified):\n"
+                + "\n".join(parts))
+
+    if any(token in q for token in ("move", "reschedule", "change time", "rearrange")):
+        return ("Open Planner → Resolve conflicts for no-cost, rule-checked "
+                "alternatives. KIN proposes times; you approve any change.")
+
+    if any(token in q for token in ("schedule", "today", "tomorrow", "next",
+                                   "class", "exam", "work", "meeting", "plan")):
+        day = reference.date() + timedelta(days=1) if "tomorrow" in q else None
+        items = []
+        for c in live:
+            try:
+                start = parse_dt(c["start"]).astimezone(MICHIGAN)
+            except (KeyError, ValueError, TypeError):
+                continue
+            if day is not None and start.date() != day:
+                continue
+            if day is None and start < reference:
+                continue
+            if "class" in q and c.get("event_type") != "class":
+                continue
+            items.append((start, c))
+        items.sort(key=lambda pair: pair[0])
+        if not items:
+            return ("No matching upcoming commitments found in this workspace. "
+                    "Other university calendars are not connected.")
+        lines = [f"- {stamp:%a %b %d, %I:%M %p}: {item['title']}"
+                 for stamp, item in items[:5]]
+        return ("Upcoming entries from your stored timetable:\n" + "\n".join(lines))
+
+    return ("Free-first KIN can answer questions about upcoming commitments, "
+            "conflicts, available time, and how to reschedule. For open-ended "
+            "conversation, an optional AI provider must be configured.")
