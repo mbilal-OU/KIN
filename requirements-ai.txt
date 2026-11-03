@@ -1,0 +1,3 @@
+# Optional hosted AI support; no model SDK is needed for free-first mode.
+-r requirements.txt
+google-genai>=1.0,<2
