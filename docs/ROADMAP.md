@@ -67,3 +67,28 @@ Gates that never move:
 - No compliance or affiliation claim that has not been independently
   established.
 - A model failure degrades to a labeled fallback, never to a confident guess.
+
+---
+
+## KIN 2.0: Ideas, tasks and future life-assistant direction (November 2026)
+
+The existing roadmap above describes the original prototype and its staged technical gates. The team is also tracking a **proposed** broader life-assistant product in [KIN Development Hub](DEVELOPMENT_HUB.md). These issues are **not shipped features or delivery commitments**.
+
+| Priority | Workstream | Tracking issue |
+|---|---|---|
+| P0 | Privacy boundaries, data separation and consent | [#9](https://github.com/mbilal-OU/KIN/issues/9) |
+| P0 | Manual school, work and personal routines | [#10](https://github.com/mbilal-OU/KIN/issues/10) |
+| P0 | Safe conflict-resolution recommendations | [#11](https://github.com/mbilal-OU/KIN/issues/11) |
+| P1 | Alarms, timers and contextual reminders | [#12](https://github.com/mbilal-OU/KIN/issues/12) |
+| P1 | Push-to-talk voice assistant | [#13](https://github.com/mbilal-OU/KIN/issues/13) |
+| P1 | Independent email/passkey accounts | [#14](https://github.com/mbilal-OU/KIN/issues/14) |
+| P1 | Local-first encrypted storage and optional sync | [#15](https://github.com/mbilal-OU/KIN/issues/15) |
+| P1 | Student pilot and OU commercialization evidence | [#19](https://github.com/mbilal-OU/KIN/issues/19) |
+| P2 | OU calendar/class schedule connection | [#16](https://github.com/mbilal-OU/KIN/issues/16) |
+| P2 | OU Moodle deadlines and announcements | [#17](https://github.com/mbilal-OU/KIN/issues/17) |
+| P2 | OU email access feasibility | [#18](https://github.com/mbilal-OU/KIN/issues/18) |
+| P2 | Mobile-first experience | [#20](https://github.com/mbilal-OU/KIN/issues/20) |
+
+**Launch order:** Manual entry and .ics import first. Official OU integrations are optional, require written institutional authorization and student consent, and must not use password collection or unofficial scraping. KIN should keep private personal routines outside university visibility.
+
+**To contribute an idea or modification:** [Create an issue using the templates](https://github.com/mbilal-OU/KIN/issues/new/choose). All changes, discussion, decisions and completed work are tracked in GitHub Issues and linked pull requests.
