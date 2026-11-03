@@ -157,3 +157,16 @@ def test_open_ended_questions_fall_back_to_local_rules():
 def test_voice_rejects_empty_command():
     with pytest.raises(ValueError):
         local_voice_answer("", [], [])
+
+
+def test_named_fixed_event_is_not_substituted_with_other_flexible_event():
+    exam = event("Exam", "2026-11-04T10:00:00-05:00",
+                 "2026-11-04T11:00:00-05:00", ws="School")
+    gym = event("Gym", "2026-11-04T10:30:00-05:00",
+                "2026-11-04T11:30:00-05:00", ws="School", mode="flexible")
+    reply = local_voice_answer(
+        "Please move my exam", [exam, gym], [exam, gym],
+        now=datetime.fromisoformat("2026-11-03T08:00:00-05:00"))
+    assert reply["suggestions"] == []
+    assert reply["target_id"] is None
+    assert "Exam" in reply["answer"] and "fixed or protected" in reply["answer"]
