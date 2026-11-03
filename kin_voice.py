@@ -189,13 +189,7 @@ def local_voice_answer(
         c for c in active if c.get("title", "").strip().lower()
         and c["title"].strip().lower() in q.lower()
     ]
-    if matching:
-        preferred = matching
-    elif possible:
-        preferred = possible
-    else:
-        preferred = active
-    if not preferred:
+    if not active:
         return {
             "answer": (
                 "I can't move a fixed class, work shift or protected commitment. "
@@ -203,8 +197,18 @@ def local_voice_answer(
                 "open Resolve conflicts. I haven't changed anything."
             ), "suggestions": [], "target_id": None,
         }
+    preferred = matching or possible or active
+    if len(preferred) > 1:
+        options = ", ".join(c["title"] for c in preferred[:4])
+        return {
+            "answer": (
+                "More than one flexible commitment could be moved: "
+                f"{options}. Please name the specific one or select it in "
+                "Planner → Resolve conflicts. I haven't changed anything."
+            ), "suggestions": [], "target_id": None,
+        }
 
-    selected = sorted(preferred, key=lambda c: parse_dt(c["start"]))[0]
+    selected = preferred[0]
     slots = suggest_alternative_slots(
         all_kin_commitments, selected["id"], days_ahead=7,
         max_results=3, not_before=clock)
