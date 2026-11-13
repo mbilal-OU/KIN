@@ -1,5 +1,19 @@
 # Roadmap
 
+## Institutional-first product direction — proposed November 2026
+
+**Target:** Explore KIN as a possible **OU-endorsed optional companion for students first and later employees**, contingent on OU INC/stakeholder engagement, UTS review, a consented pilot, accessibility, secure infrastructure and procurement. **No approval, pilot, funding or university-wide adoption is claimed.**
+
+**P0 (now):** Prepare a synthetic-data OU Daily Briefing demo; conduct OU stakeholder discovery; confirm Gemini chat vs API terms; ensure public demo displays unofficial/test-data warnings; rotate any exposed AI keys; restore/verify green CI; map data/permissions/security risk; scope an accessible pilot.
+
+**P1 (after sponsor and reviews):** Determine applicable OU review and ethics requirements; establish testable pilot metrics; build production-grade identities, isolation and encryption if permitted real personal data is involved; evaluate an approved model backend; complete accessibility remediation.
+
+**P2 (after written OU authorization):** Role-specific student, faculty and staff workflows; approved Google Workspace and Moodle/MySAIL connectors; limited departmental deployment; evidence-based institutional procurement discussion.
+
+**Architecture decision:** OU makes Google Gemini available via OU Google accounts, but this **does not** grant KIN API access or approval to process university data. KIN currently uses Gemma 4 via Gemini API, local Ollama or AI-off; an actual Gemini model integration is separately unbuilt.
+
+**New strategy documents:** [OU-first](OU_FIRST_STRATEGY.md) · [Pilot](OU_PILOT_PLAN.md) · [Gemini decision](OU_GEMINI_DECISION.md) · [Institutional readiness](OU_INSTITUTIONAL_READINESS.md). Existing issues [#19](https://github.com/mbilal-OU/KIN/issues/19) and [#21](https://github.com/mbilal-OU/KIN/issues/21) remain the central pilot and Gemini workstreams.
+
 Today's build deliberately stops at a stable, honest demonstration. Everything
 below is **not implemented**, listed with the gate that must be satisfied first.
 
