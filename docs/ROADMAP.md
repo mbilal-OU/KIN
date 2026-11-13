@@ -12,6 +12,8 @@
 
 **Architecture decision:** OU makes Google Gemini available via OU Google accounts, but this **does not** grant KIN API access or approval to process university data. KIN currently uses Gemma 4 via Gemini API, local Ollama or AI-off; an actual Gemini model integration is separately unbuilt.
 
+**New P0 tracking issues:** [#24 OU Daily Briefing](https://github.com/mbilal-OU/KIN/issues/24) · [#25 UTS/data gates](https://github.com/mbilal-OU/KIN/issues/25) · [#26 accessibility](https://github.com/mbilal-OU/KIN/issues/26) · [#27 public demo/key/CI hardening](https://github.com/mbilal-OU/KIN/issues/27).
+
 **New strategy documents:** [OU-first](OU_FIRST_STRATEGY.md) · [Pilot](OU_PILOT_PLAN.md) · [Gemini decision](OU_GEMINI_DECISION.md) · [Institutional readiness](OU_INSTITUTIONAL_READINESS.md). Existing issues [#19](https://github.com/mbilal-OU/KIN/issues/19) and [#21](https://github.com/mbilal-OU/KIN/issues/21) remain the central pilot and Gemini workstreams.
 
 Today's build deliberately stops at a stable, honest demonstration. Everything
