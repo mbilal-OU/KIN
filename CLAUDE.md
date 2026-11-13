@@ -1,4 +1,33 @@
-# Claude coding instructions — KIN Hacktoberfest
+# KIN development instructions — current priority: OU-first companion (November 2026)
+
+**The original October 30 Hacktoberfest build deadline has passed.** Preserve the working prototype; do not treat that event deadline as a current requirement. The historical instructions and test cases remain below for regression context.
+
+## Strategic priority
+
+KIN's first intended institutional customer is **Oakland University**. Build toward a potential optional OU companion for students first and faculty/staff later, with an **OU Daily Briefing** as the lead user value. This is *not* an OU-approved application, pilot or official integration.
+
+Read before making substantive changes:
+
+1. `docs/OU_FIRST_STRATEGY.md` — audience, flagship workflows, guardrails and commercialization hypothesis.
+2. `docs/OU_GEMINI_DECISION.md` — OU provides Gemini chat, not presumed Gemini API access; KIN currently uses **Gemma 4 via the Gemini API**, local Ollama or no AI.
+3. `docs/OU_INSTITUTIONAL_READINESS.md` — data classification, UTS procurement, privacy, accessibility, tenant isolation and approval gates.
+4. `docs/OU_PILOT_PLAN.md` — proposed synthetic-data demonstration and pilot evidence.
+5. `docs/ROADMAP.md` and `docs/DEVELOPMENT_HUB.md` — tracked priorities and GitHub workflow.
+
+## Non-negotiable engineering rules
+
+- Do not represent KIN as OU-endorsed. Do not add official OU logos or access private OU systems without authorization.
+- Do not collect OU passwords, scrape restricted systems or export university/student/employee private data to unapproved Gemini/other LLM services.
+- The public hosted guest demo is **fictional-data only**. No claim of secure production deployment, FERPA compliance, SOC 2 or WCAG audit.
+- Model output must not create authoritative status, compute conflicts, bypass identity/access rules or execute side effects; rules validate and users explicitly approve.
+- Preserve offline AI-off fallback and cross-workspace privacy boundaries.
+- Make no institutional API integration without stakeholder/UTS permission, supported auth and data-classification review.
+- Maintain code quality: inspect changed paths and run `python -m pytest -q` and relevant static checks when code changes. CI pass must be verified, never assumed.
+- Keep GitHub PR descriptions honest about implemented vs planned capabilities and tests that were actually run.
+
+---
+
+## Historical Hacktoberfest instructions (preserved for regression context)
 
 You are implementing KIN for Hacktoberfest Hack Day Rochester x GrizzHacks. Deadline: 2026-10-30 17:30 America/Detroit. The repo already contains a working Streamlit-oriented starter. DO NOT rewrite it from scratch without reason. First run tests, inspect application, fix any issues, then improve usability.
 
