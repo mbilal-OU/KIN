@@ -32,6 +32,18 @@ events clash, and it never decides whether a class is canceled.
 > KIN is a student project. It is **not** an official Oakland University
 > service and **not** an emergency notification system.
 
+## Oakland University first: proposed institutional companion (November 2026)
+
+**Commercialization direction:** KIN's **first target customer is Oakland University**. The team wants to explore an *optional, officially supported* companion for **students first**, then **faculty and staff**—starting with a voluntary, authorized pilot. **This is a proposal, not an OU partnership, official product, authorized integration or contracted service.**
+
+**What KIN would add:** A source-linked OU Daily Briefing, user-controlled planning across commitments, deterministic conflict detection, campus-resource navigation, accessible workflows, and verified human-approved actions. KIN aims to **complement OU's existing Google Gemini and Google Workspace tools**, not replace them.
+
+**Gemini vs Gemma:** OU's [AI@OU resources](https://oakland.edu/ai/general-resources/) say OU Google accounts can access the **free Gemini chat app**. KIN today optionally runs **Gemma 4 through the Gemini API**, or local Ollama, or **AI off**. OU Gemini chat access **does not** provide KIN with API rights, free API billing, university security approval or permission to process protected OU data. [Read the AI provider decision](docs/OU_GEMINI_DECISION.md).
+
+**Institutional readiness:** The current public prototype is **fictional-data-only** and is not secure for real multi-user student/employee records. Any pilot with real personal or university data requires review, privacy/consent arrangements, strong authentication and data isolation; private OU integrations additionally require written technical authorization. OU's [AI security policy #820](https://www.oakland.edu/policies/information-technology/820/) and [UTS procurement review](https://support.oakland.edu/TDClient/33/Support-Center/KB/Article/140/IT-Procurement-and-Sourcing-Needs) apply to prospective institutional deployments.
+
+**Start here:** [OU-first strategy](docs/OU_FIRST_STRATEGY.md) · [OU pilot plan](docs/OU_PILOT_PLAN.md) · [Institutional readiness](docs/OU_INSTITUTIONAL_READINESS.md) · [Gemini / Gemma architecture](docs/OU_GEMINI_DECISION.md) · [Existing roadmap](docs/ROADMAP.md)
+
 ---
 
 ## Explore KIN
