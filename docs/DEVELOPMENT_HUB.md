@@ -4,6 +4,18 @@
 
 This is the central record of ideas, requested modifications, development tasks, bugs, research, decisions and completed work for KIN. The source of truth is **GitHub Issues and pull requests**, not a temporary chat or private to-do list.
 
+## Current product direction — OU first (12 November 2026)
+
+Our first institutional target is **Oakland University**: pursue an authorized, optional **KIN OU Companion**, initially for students, with a later path to faculty and staff. The first proposed experience is a verified, source-linked **OU Daily Briefing** with scheduling/conflict explanations and user-approved changes.
+
+This remains an independent project. OU's availability of the Gemini *chat app* does not imply KIN has access to OU-funded Gemini APIs or permission to process OU Confidential/Internal data. Any real OU pilot requires the proper approvals; the current guest prototype is fictional-data only.
+
+Review: [OU-first product strategy](OU_FIRST_STRATEGY.md), [OU pilot](OU_PILOT_PLAN.md), [OU Gemini architecture](OU_GEMINI_DECISION.md), [Institutional readiness](OU_INSTITUTIONAL_READINESS.md).
+
+**Issue tracking:** Avoid duplicate tickets: [#19](https://github.com/mbilal-OU/KIN/issues/19) already tracks OU pilot evidence, [#21](https://github.com/mbilal-OU/KIN/issues/21) tracks Gemini evaluation, and [#14–18](https://github.com/mbilal-OU/KIN/issues/14) cover identity, storage and possible integrations. Track new gaps only after checking existing work.
+
+**Feature audit:** Old issue descriptions and the original hackathon roadmap are historical; they are not a current shipped-feature matrix. Consult the latest README, source and tests for implemented behavior. Working guest-only features are **not** proof of secure enterprise readiness.
+
 ## Quick links
 
 - [All issues](https://github.com/mbilal-OU/KIN/issues)
